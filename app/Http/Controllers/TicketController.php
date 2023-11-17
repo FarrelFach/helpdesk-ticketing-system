@@ -124,14 +124,13 @@ class TicketController extends Controller
         return redirect('ticket');
     }
 
-    public function updateStatus(Ticket $ticket, Request $request)
+    public function updateTicket(Request $request, $ticketId)
     {
-        $status = $request->input('status');
-
-        // Update the status of the ticket
-        $ticket->status = $status;
+        $ticket = Ticket::findOrFail($ticketId);
+        $ticket->status = $request->input('new_status');
+        $ticket->assigned_to = $request->input('assigned_to');
         $ticket->save();
-    
-        return response()->json(['success' => true]);
+
+        return response()->json(['message' => 'Ticket updated successfully']);
     }
 }

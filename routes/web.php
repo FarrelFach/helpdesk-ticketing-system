@@ -22,7 +22,7 @@ Route::resource('home', HomeController::class);
 Route::get('home/{status}/show', [HomeController::class, 'show'])->name('tickets.show');
 Route::get('/fetch-data/{id}', [HomeController::class, 'fetchData']);
 Route::get('/fetch-dataAll/{id}', [HomeController::class, 'fetchDataAll']);
-Route::post('/update-ticket-status/{ticket}', [TicketController::class, 'updateStatus']);
+Route::post('/update-ticket/{ticket}', [TicketController::class, 'updateTicket'])->name('update.ticket');
 Route::resource('ticket', TicketController::class);
 Route::resource('user', UserController::class);
 Route::resource('category', CategoryController::class);
