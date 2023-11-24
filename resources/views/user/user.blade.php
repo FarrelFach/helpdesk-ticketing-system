@@ -138,27 +138,13 @@
         });
     });
 });
-// Check if the modal is shown or not
-$(document).ready(function() {
-    var isModalShown = localStorage.getItem('isModalShown');
-    console.log('this js is working', newStatus);
 
-    if (isModalShown === null || isModalShown === 'false') {
-        $('#myModal').modal('hide');
-    } else {
-        $('#myModal').modal('show');
-    }
-});
-
-// Save modal state on close
-$('#myModal').on('hide.bs.modal', function () {
-    localStorage.setItem('isModalShown', 'false');
-});
-
-// Save modal state on open
-$('#myModal').on('show.bs.modal', function () {
-    localStorage.setItem('isModalShown', 'true');
-});
+    $(document).ready(function() {
+        @if ($errors->any())
+            $('#myModal').modal('show');
+            $('#errorMessage').html('<strong>{{ $errors->first() }}</strong>');
+        @endif
+    });
 </script>
 <div class="modal fade bd-example-modal-lg" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">

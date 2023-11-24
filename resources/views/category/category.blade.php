@@ -16,7 +16,7 @@
               <!-- /.card-header -->
               <div class="card-body">
                 <div class="table-responsive">
-                <table id="example2" class="table table-bordered table-hover">
+                <table id='tbody' class="table table-bordered table-hover">
                   <thead>
                   <tr>
                     <th>no</th>
@@ -60,11 +60,16 @@
               </div>
               <!-- /.card-header -->
               <div class="card-body">
-              <form method="POST" action="{{ url('category') }}" enctype="multipart/form-data">
+              <form method="POST" enctype="multipart/form-data" id="insertForm">
                         @csrf
                         <div class="form-group">
                             <label for="exampleInputEmail1">category</label>
                             <input type="text" class="form-control" id="name" name="name" placeholder="Nama Kategori">
+                            @error('name')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
                         </div>
                         <div class="card-footer">
                             <button type="submit" class="btn btn-primary">Submit</button>
@@ -100,4 +105,29 @@
 
 <!-- AdminLTE App -->
 <script src="{{asset('AdminLTE')}}/dist/js/adminlte.min.js"></script>
+<script>
+  $('#insertForm').submit(function(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    var formData = $(this).serialize(); // Serialize form data
+    console.log('function berhasil terpanggil');
+    $.ajax({
+        url: '/insert-data', // Laravel route for inserting data
+        method: 'POST',
+        headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Include the CSRF token
+            },
+        data: formData,
+        success: function(response) {
+            // On successful insertion, update table display
+            $("#insertForm")[0].reset();
+            $('#tbody').load(document.URL +  ' #tbody');
+        },
+        error: function(xhr, status, error) {
+            // Handle error
+            console.error(xhr.responseText);
+        }
+    });
+});
+</script>
 @endsection

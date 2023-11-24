@@ -20,6 +20,7 @@ Auth::routes();
 
 Route::resource('home', HomeController::class);
 Route::get('home/{status}/show', [HomeController::class, 'show'])->name('tickets.show');
+Route::post('/insert-data', [CategoryController::class, 'store'])->name('insert.data');
 Route::get('/fetch-data/{id}', [HomeController::class, 'fetchData']);
 Route::get('/fetch-dataAll/{id}', [HomeController::class, 'fetchDataAll']);
 Route::get('/take/{ticket}', [TicketController::class, 'takeTicket'])->name('ticket.take');

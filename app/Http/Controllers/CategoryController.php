@@ -46,17 +46,19 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        $currentDate = Carbon::now()->format('Y-m-d');
+        // Validate form data (you can add your validation rules here)
         $validatedData = $request->validate([
             'name' => 'required|string|max:50|unique:categories',
+            // Add more validation rules if needed
         ]);
-        $ctg = new Category;
-        $ctg->name = $validatedData['name'];
-        $ctg->save();
 
-        Session::flash('success', 'Data berhasil ditambah');
+        // Insert data into the database
+        $category = new Category;
+        $category->name = $validatedData['name'];
+        $category->save();
 
-        return response()->json(['message' => 'Entry added successfully']);
+        // Return a response (you can customize the response based on your needs)
+        return response()->json($category);
     }
 
     /**

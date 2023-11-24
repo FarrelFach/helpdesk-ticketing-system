@@ -15,6 +15,12 @@ return new class extends Migration
     {
         Schema::create('log_tickets', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('ticket_id');
+            $table->foreign('ticket_id')->references('id')->on('tickets');
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->string('action');
+            $table->string('details');
             $table->timestamps();
         });
     }
