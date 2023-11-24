@@ -11,12 +11,15 @@
                   <div class="col">
                     <h3 class="card-title"><b>List Tiket In Progress</b></h3>
                   </div>
+                  <div class="col-">
+                    <a href="/openAll" class="btn btn-sm btn-primary btn-block m-2">Edit</a>
+                  </div>
                 </div>
               </div>
               <!-- /.card-header -->
               <div class="card-body">
                 <div class="table-responsive">
-                <table id="example2" class="table table-bordered table-hover">
+                <table id="tbody" class="table table-bordered table-hover">
                   <thead>
                   <tr>
                         <th>No</th>
@@ -38,13 +41,13 @@
                     <td>{{ strlen($data->title) > 5 ? substr($data->title, 0, 5) . '...' : $data->title }}</td>
                     <td>{{ $data->category->name }}</td>
                     <td>{{ $data->creator->name }}</td>
-                    <td class="assignee">{{ $data->assignedTo ? $data->assignedTo->name : 'Not Assigned' }}</td>
-                    <td class="status">
+                    <td class="assignee_{{ $data->id }}">{{ $data->assignedTo ? $data->assignedTo->name : 'Not Assigned' }}</td>
+                    <td id="status_{{ $data->id }}">
                         @if($data->status == 'Open')
                             <span class="bg-success border border-success rounded p-2">{{ $data->status }}</span>
                         @elseif($data->status == 'In Progress')
                             <span class="bg-warning border border-warning rounded p-2">{{ $data->status }}</span>
-                        @elseif($data->status == 'To Be Confirmed')
+                        @elseif($data->status == 'To Be Confirmed...')
                             <span class="bg-info border border-info rounded p-2">{{ $data->status }}</span>
                         @else
                             <span class="bg-secondary border border-white rounded p-2">{{ $data->status }}</span>
@@ -61,7 +64,7 @@
                           </form>
                         </div>
                         <div class="col-4">
-                          <a href="{{ route('ticket.confirm', $data->id) }}" class="update-ticket btn btn-sm btn-primary btn-block m-2">Done</a>
+                        <a href="#" class="update-status btn btn-sm btn-info btn-block m-2" data-id="{{ $data->id }}" data-status="To Be Confirmed...">Done</a>
                         </div>
                         <div class="col-4">
                           <a class="btn btn-sm btn-primary btn-block m-2">Detail</a>
@@ -95,7 +98,7 @@
               <!-- /.card-header -->
               <div class="card-body">
                 <div class="table-responsive">
-                <table id="example2" class="table table-bordered table-hover">
+                <table id="tbody" class="table table-bordered table-hover">
                   <thead>
                   <tr>
                         <th>No</th>
@@ -109,7 +112,7 @@
                         <th>action</th>
                   </tr>
                   </thead>
-                  <tbody>
+                  <tbody >
                   @foreach ($opentickets as $data)
                   <tr>
                     <td>{{$loop->iteration}}</td>
@@ -117,8 +120,8 @@
                     <td>{{ strlen($data->title) > 5 ? substr($data->title, 0, 5) . '...' : $data->title }}</td>
                     <td>{{ $data->category->name }}</td>
                     <td>{{ $data->creator->name }}</td>
-                    <td class="assignee">{{ $data->assignedTo ? $data->assignedTo->name : 'Not Assigned' }}</td>
-                    <td class="status">
+                    <td id="assignee_{{ $data->id }}">{{ $data->assignedTo ? $data->assignedTo->name : 'Not Assigned' }}</td>
+                    <td id="status_{{ $data->id }}">
                         @if($data->status == 'Open')
                             <span class="bg-success border border-success rounded p-2">{{ $data->status }}</span>
                         @elseif($data->status == 'In Progress')
@@ -138,7 +141,7 @@
                           </form>
                         </div>
                         <div class="col-4">
-                          <a href="{{ route('ticket.take', $data->id) }}" class="update-ticket btn btn-sm btn-primary btn-block m-2">take</a>
+                          <a href="#" class="update-status btn btn-sm btn-primary btn-block m-2" data-id="{{ $data->id }}" data-status="In Progress">take</a>
                         </div>
                         <div class="col-4">
                           <a class="btn btn-sm btn-primary btn-block m-2">Detail</a>
@@ -186,6 +189,42 @@
 
 <!-- Page specific script -->
 <script>
+  $(document).ready(function () {
+    $('.update-status').click(function (e) {
+        e.preventDefault(); // Prevent the default link behavior
+
+        var link = $(this);
+        var ticketId = link.data('id')
+        var newStatus = link.data('status');
+
+        console.log('Clicked link with ticket ID:', ticketId);
+        console.log('New status:', newStatus);
+
+        // Disable the link to prevent further updates
+        link.prop('disabled', true);
+
+        // Send an AJAX request to update the status to 'pending'
+        $.ajax({
+            url: '/update-ticket-status/' + ticketId,
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Include the CSRF token
+            },
+            data: { status: newStatus },
+            success: function (response) {
+              $('#status_' + ticketId).text(response.updatedStatus);
+              setTimeout(function() {
+                  $('#tbody').load(document.URL + ' #tbody');
+              }, 5000);
+            },
+            error: function (xhr, status, error) {
+                console.error(error);
+                // Re-enable the link in case of an error
+                link.prop('disabled', false);
+            }
+        });
+    });
+});
 </script>
 <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">

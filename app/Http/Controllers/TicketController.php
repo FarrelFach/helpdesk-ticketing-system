@@ -37,7 +37,7 @@ class TicketController extends Controller
                     ->get();
         $takentickets = Ticket::with(['creator', 'assignedTo', 'category'])
                     ->where('status', 'In Progress')
-                    ->orWhere('status', 'To Be Confirmed')
+                    ->orWhere('status', 'To Be Confirmed...')
                     ->where('assigned_to', Auth::user()->id)
                     ->get();
         return view('ticket.ticket', compact('opentickets', 'takentickets'));
@@ -139,44 +139,31 @@ class TicketController extends Controller
         return redirect('ticket');
     }
 
-    public function confirmTicket(Request $request, $ticketId)
+    public function updateTicket(Request $request, $ticketId)
     {
-        $ticket = Ticket::findOrFail($ticketId);
-        $ticket->status = "To Be Confirmed";
-        $ticket->save();
-
-        return redirect('ticket');
+        try{
+            $status = $request->input('status');
+            $ticket = Ticket::findOrFail($ticketId);
+            // Update the status of the ticket
+            $ticket->status = $status;
+            $ticket->save();
+    
+            return response()->json(['updatedStatus' => $ticket->status]);
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            \Log::error($e);
+            return response()->json(['error' => 'An error occurred while updating the ticket status.']);
+        }
     }
 
-    public function acceptTicket(Request $request, $ticketId)
+    public function openAll()
     {
-        $ticket = Ticket::findOrFail($ticketId);
-        $ticket->status = "closed";
-        $ticket->updated_at = Carbon::now();
-        $ticket->save();
-
-        return redirect('ticket');
-    }
-
-    public function rejectTicket(Request $request, $ticketId)
-    {
-        $ticket = Ticket::findOrFail($ticketId);
-        $ticket->status = "Open";
-        $ticket->assigned_to = null;
-        $ticket->updated_at = Carbon::now();
-        $ticket->save();
-
-        return redirect('ticket');
-    }
-
-    public function takeTicket(Request $request, $ticketId)
-    {
-        $ticket = Ticket::findOrFail($ticketId);
-        $ticket->status = "In Progress";
-        $ticket->assigned_to = Auth::user()->id;
-        $ticket->updated_at = Carbon::now();
-        $ticket->save();
-
+            // Find the ticket by its ID
+        $ticketsInProgress = Ticket::where('status', 'In Progress')->get();
+        foreach ($ticketsInProgress as $ticket) {
+            $ticket->status = 'Open';
+            $ticket->save();
+        }
         return redirect('ticket');
     }
 }

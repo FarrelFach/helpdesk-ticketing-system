@@ -37,7 +37,7 @@
                         <tr>
                             <td>{{ $ticket->id }}</td>
                             <td>{{ $ticket->title }}</td>
-                            <td>{{ $ticket->status }}</td>
+                            <td id="status_{{ $ticket->id }}">{{ $ticket->status }}</td>
                             <td>{{ $ticket->priority }}</td>
                             <td>{{ $ticket->creator->name }}</td>
                             <td>{{ $ticket->assignee ? $ticket->assignee->name : 'Not Assigned' }}</td>
@@ -52,7 +52,7 @@
                                   </form>
                                   </div>
                                   <div class="col-4">
-                                  <a href="#" class="update-status btn btn-sm btn-primary btn-block m-2" data-id="{{ $ticket->id }}" data-status="open">take</a>
+                                  <a href="#" class="update-status btn btn-sm btn-primary btn-block m-2" data-id="{{ $ticket->id }}" data-status="Closed">take</a>
                                   </div>
                                   <div class="col-4">
                                   <a class="btn btn-sm btn-primary btn-block m-2">Detail</a>
@@ -105,9 +105,7 @@
         e.preventDefault(); // Prevent the default link behavior
 
         var link = $(this);
-        var row = link.closest('tr');
         var ticketId = link.data('id')
-        var statusCell = row.find('.status');
         var newStatus = link.data('status');
 
         console.log('Clicked link with ticket ID:', ticketId);
@@ -125,15 +123,7 @@
             },
             data: { status: newStatus },
             success: function (response) {
-                // Handle the response from the server
-                if (response.success) {
-                    // Update the status column with the new status
-                    statusCell.html('<span class="bg-warning border border-warning rounded">' + newStatus + '</span>');
-                } else {
-                    alert('Failed to update status.');
-                    // Re-enable the link if there was an error
-                    link.prop('disabled', false);
-                }
+              $('#status_' + ticketId).text(response.updatedStatus);
             },
             error: function (xhr, status, error) {
                 console.error(error);

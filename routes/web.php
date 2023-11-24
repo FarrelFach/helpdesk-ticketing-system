@@ -5,6 +5,7 @@ use App\Http\Controllers\TicketController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\testController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -23,9 +24,10 @@ Route::get('home/{status}/show', [HomeController::class, 'show'])->name('tickets
 Route::post('/insert-data', [CategoryController::class, 'store'])->name('insert.data');
 Route::get('/fetch-data/{id}', [HomeController::class, 'fetchData']);
 Route::get('/fetch-dataAll/{id}', [HomeController::class, 'fetchDataAll']);
-Route::get('/take/{ticket}', [TicketController::class, 'takeTicket'])->name('ticket.take');
-Route::get('/confirm/{ticket}', [TicketController::class, 'confirmTicket'])->name('ticket.confirm');
+Route::get('/openAll', [TicketController::class, 'openAll'])->name('ticket.openAll');
+Route::post('/update-ticket-status/{ticket}', [TicketController::class, 'updateTicket'])->name('ticket.update');
 Route::resource('ticket', TicketController::class);
 Route::resource('user', UserController::class);
+Route::resource('test', testController::class);
 Route::resource('category', CategoryController::class);
 Route::redirect('/', '/home');
