@@ -24,8 +24,23 @@ class TicketController extends Controller
 
     public function index()
     {
-        $tickets = Ticket::with(['creator', 'assignedTo', 'category'])->get();
-        return view('ticket.ticket', compact('tickets'));
+        $opentickets = Ticket::with(['creator', 'assignedTo', 'category'])
+                    ->where('status', 'Open')
+                    ->orderByRaw("
+                    CASE 
+                        WHEN priority = 'High' THEN 1 
+                        WHEN priority = 'Medium' THEN 2 
+                        WHEN priority = 'Low' THEN 3 
+                        ELSE 4 
+                    END
+                    ")
+                    ->get();
+        $takentickets = Ticket::with(['creator', 'assignedTo', 'category'])
+                    ->where('status', 'In Progress')
+                    ->orWhere('status', 'To Be Confirmed')
+                    ->where('assigned_to', Auth::user()->id)
+                    ->get();
+        return view('ticket.ticket', compact('opentickets', 'takentickets'));
     }
 
     /**
@@ -49,7 +64,7 @@ class TicketController extends Controller
     {
         $currentDate = Carbon::now()->format('Y-m-d');
         $validatedData = $request->validate([
-            'judul' => 'required|string|max:255',
+            'judul' => 'required|string|max:20',
             'description' => 'required',
             'prioritas' => 'required',
         ]);
@@ -124,13 +139,44 @@ class TicketController extends Controller
         return redirect('ticket');
     }
 
-    public function updateTicket(Request $request, $ticketId)
+    public function confirmTicket(Request $request, $ticketId)
     {
         $ticket = Ticket::findOrFail($ticketId);
-        $ticket->status = $request->input('new_status');
-        $ticket->assigned_to = $request->input('assigned_to');
+        $ticket->status = "To Be Confirmed";
         $ticket->save();
 
-        return response()->json(['message' => 'Ticket updated successfully']);
+        return redirect('ticket');
+    }
+
+    public function acceptTicket(Request $request, $ticketId)
+    {
+        $ticket = Ticket::findOrFail($ticketId);
+        $ticket->status = "closed";
+        $ticket->updated_at = Carbon::now();
+        $ticket->save();
+
+        return redirect('ticket');
+    }
+
+    public function rejectTicket(Request $request, $ticketId)
+    {
+        $ticket = Ticket::findOrFail($ticketId);
+        $ticket->status = "Open";
+        $ticket->assigned_to = null;
+        $ticket->updated_at = Carbon::now();
+        $ticket->save();
+
+        return redirect('ticket');
+    }
+
+    public function takeTicket(Request $request, $ticketId)
+    {
+        $ticket = Ticket::findOrFail($ticketId);
+        $ticket->status = "In Progress";
+        $ticket->assigned_to = Auth::user()->id;
+        $ticket->updated_at = Carbon::now();
+        $ticket->save();
+
+        return redirect('ticket');
     }
 }

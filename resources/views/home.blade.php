@@ -122,31 +122,55 @@
 
 <script>
     // Attach a click event listener to the <a> element
-    $('a[data-target="#dataModal"]').on('click', function(event) {
-        event.preventDefault(); // Prevent the <a> from navigating to a different page
+    $.ajax({
+    url: '/fetch-data/' + id, // Update the URL to include the ID
+    method: 'GET',
+    success: function(data) {
+        // Clear any existing data in the table
+        $('#data-table').empty();
 
-        // Read the data-id attribute
-        var id = $(this).data('id'); // Get the value of the data-id attribute
-
-        // Make an AJAX request to fetch data based on the ID
-        $.ajax({
-            url: '/fetch-data/' + id, // Update the URL to include the ID
-            method: 'GET',
-            success: function(data) {
-                // Clear any existing data in the table
-                $('#data-table').empty();
-
-                // Add the fetched data to the table
-                $.each(data, function(index, item) {
-                    $('#data-table').append('<tr><td>' + item.id + '</td><td>' + item.created_by + '</td><td>' + item.title + '</td><td>' + item.description + '</td><td>' + item.status + '</td><td>' + item.priority + '</td></tr>');
-                    // Add more columns as needed
-                });
-            },
-            error: function() {
-                alert('Failed to fetch data.');
-            }
+        // Add the fetched data to the table
+        $.each(data, function(index, item) {
+            // Create a row and append data to columns
+            var row = '<tr>' +
+                '<td>' + item.id + '</td>' +
+                '<td>' + item.created_by + '</td>' +
+                '<td>' + item.title + '</td>' +
+                '<td>' + item.description + '</td>' +
+                '<td>' + item.status + '</td>' +
+                '<td>' + item.priority + '</td>' +
+                '<td>' +
+                '<button class="btn btn-primary action-button" data-item-id="' + item.id + '">Action</button>' +
+                '</td>' +
+                '</tr>';
+            // Append the row to the table
+            $('#data-table').append(row);
+            // Add more columns as needed
         });
-    });
+
+        // Optional: Add a click event for the action button
+        $('.action-button').on('click', function() {
+            var itemId = $(this).data('item-id');
+            // Perform an action when the button is clicked based on the item ID
+            // You can make another AJAX call or handle the action here
+            // Example:
+            // $.ajax({
+            //     url: '/perform-action/' + itemId,
+            //     method: 'POST',
+            //     // Additional data if needed
+            //     success: function(response) {
+            //         // Handle success
+            //     },
+            //     error: function() {
+            //         // Handle error
+            //     }
+            // });
+        });
+    },
+    error: function() {
+        alert('Failed to fetch data.');
+    }
+});
 
     // Attach a click event listener to the <a> element
     $('a[class="allticket"]').on('click', function(event) {
@@ -165,7 +189,14 @@
 
                 // Add the fetched data to the table
                 $.each(data, function(index, item) {
-                    $('#data-table').append('<tr><td>' + item.id + '</td><td>' + item.created_by + '</td><td>' + item.title + '</td><td>' + item.description + '</td><td>' + item.status + '</td><td>' + item.priority + '</td></tr>');
+                    $('#data-table').append(
+                      '<tr><td>' + item.id + 
+                      '</td><td>' + item.created_by + 
+                      '</td><td>' + item.title + 
+                      '</td><td>' + item.description + 
+                      '</td><td>' + item.status + 
+                      '</td><td>' + item.priority + 
+                      '</td></tr>');
                     // Add more columns as needed
                 });
             },

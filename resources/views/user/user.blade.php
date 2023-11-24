@@ -28,6 +28,7 @@
                     <th>role</th>
                     <th>department</th>
                     <th>NIK</th>
+                    <th>action</th>
                   </tr>
                   </thead>
                   <tbody>

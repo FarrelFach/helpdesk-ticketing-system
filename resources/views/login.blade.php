@@ -47,11 +47,6 @@
           <div class="col-4">
             <button type="submit" class="btn btn-primary btn-block">{{ __('Login') }}</button>
           </div>
-          @if (Route::has('register'))
-            <div class="col-4">
-              <a class="btn btn-primary btn-block" href="{{ route('register') }}">{{ __('Register') }}</a>
-            </div>
-          @endif
           </div>
           <!-- /.col -->
         </div>
