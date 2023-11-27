@@ -26,6 +26,7 @@ Route::get('/fetch-data/{id}', [HomeController::class, 'fetchData']);
 Route::get('/fetch-dataAll/{id}', [HomeController::class, 'fetchDataAll']);
 Route::get('/openAll', [TicketController::class, 'openAll'])->name('ticket.openAll');
 Route::post('/update-ticket-status/{ticket}', [TicketController::class, 'updateTicket'])->name('ticket.update');
+Route::post('/update-ticket-status/{ticket}', [HomeController::class, 'updateTicket'])->name('home.update');
 Route::resource('ticket', TicketController::class);
 Route::resource('user', UserController::class);
 Route::resource('test', testController::class);

@@ -47,7 +47,7 @@
                             <span class="bg-success border border-success rounded p-2">{{ $data->status }}</span>
                         @elseif($data->status == 'In Progress')
                             <span class="bg-warning border border-warning rounded p-2">{{ $data->status }}</span>
-                        @elseif($data->status == 'To Be Confirmed...')
+                        @elseif($data->status == 'To Be Confirmed')
                             <span class="bg-info border border-info rounded p-2">{{ $data->status }}</span>
                         @else
                             <span class="bg-secondary border border-white rounded p-2">{{ $data->status }}</span>
@@ -64,7 +64,7 @@
                           </form>
                         </div>
                         <div class="col-4">
-                        <a href="#" class="update-status btn btn-sm btn-info btn-block m-2" data-id="{{ $data->id }}" data-status="To Be Confirmed...">Done</a>
+                        <a href="#" class="update-status btn btn-sm btn-info btn-block m-2" data-id="{{ $data->id }}" data-status="To Be Confirmed">Done</a>
                         </div>
                         <div class="col-4">
                           <a class="btn btn-sm btn-primary btn-block m-2">Detail</a>
@@ -153,6 +153,7 @@
                     </td>
                   </tr>
                   @endforeach
+                    </tbody>
                 </table>
                 </div>
               </div>
@@ -215,7 +216,7 @@
               $('#status_' + ticketId).text(response.updatedStatus);
               setTimeout(function() {
                   $('#tbody').load(document.URL + ' #tbody');
-              }, 5000);
+              }, 3000);
             },
             error: function (xhr, status, error) {
                 console.error(error);

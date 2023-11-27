@@ -9,7 +9,7 @@
             <!-- small box -->
             <div class="small-box bg-success text-center">
               <div class="inner">
-              <a class="allticket" href="#" data-toggle="modal" data-target="#dataModal" data-id="{{ auth()->user()->id }}"><h3 class="text-white">{{ $count }}</h3></a>
+              <a class="allticket" href="#" data-toggle="modal" data-target="#dataModal1" data-id="{{ auth()->user()->id }}"><h3 class="text-white">{{ $count }}</h3></a>
 
                 <p>Total Tiket</p>
               </div>
@@ -24,7 +24,7 @@
             <!-- small box -->
             <div class="small-box bg-success text-center">
               <div class="inner">
-                <a href="#" data-toggle="modal" data-target="#dataModal" data-id="Open"><h3 class="text-white">{{ $countOpen }}</h3></a>
+                <a href="#" data-toggle="modal" data-target="#dataModal2" data-id="Open"><h3 class="text-white">{{ $countOpen }}</h3></a>
 
                 <p>Tiket Terbuka</p>
               </div>
@@ -39,9 +39,9 @@
             <!-- small box -->
             <div class="small-box bg-success text-center">
               <div class="inner">
-              <a href="#" data-toggle="modal" data-target="#dataModal" data-id="Closed"><h3 class="text-white"><h3 class="text-white">{{ $countClose }}</h3></a>
+              <a href="#" data-toggle="modal" data-target="#dataModal3" data-id="Closed"><h3 class="text-white"><h3 class="text-white">{{ $countProgress }}</h3></a>
 
-                <p>Tiket tertutup</p>
+                <p>Tiket In Progress</p>
               </div>
               <div class="icon">
                 <i class="ion ion-person-add"></i>
@@ -54,7 +54,7 @@
             <!-- small box -->
             <div class="small-box bg-success text-center">
               <div class="inner">
-              <a href="#" data-toggle="modal" data-target="#dataModal" data-id="Pending"><h3 class="text-white"><h3 class="text-white">{{ $countPending }}</h3></a>
+              <a href="#" data-toggle="modal" data-target="#dataModal4" data-id="Pending"><h3 class="text-white"><h3 class="text-white">{{ $countTBC }}</h3></a>
 
                 <p>Tiket Pending</p>
               </div>
@@ -100,117 +100,11 @@
     </div>
   </div>
 </section>
-<div class="modal fade bd-example-modal-lg" id="dataModal" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="dataModalLabel">Data from Database</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                @include('modal.display');
-            </div>
-        </div>
-    </div>
-</div>
-
-
+@include('modal.displayAll')
+@include('modal.displayOpen')
+@include('modal.displayToBeConfirmed')
+@include('modal.displayProgress')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-<script>
-    // Attach a click event listener to the <a> element
-    $.ajax({
-    url: '/fetch-data/' + id, // Update the URL to include the ID
-    method: 'GET',
-    success: function(data) {
-        // Clear any existing data in the table
-        $('#data-table').empty();
-
-        // Add the fetched data to the table
-        $.each(data, function(index, item) {
-            // Create a row and append data to columns
-            var row = '<tr>' +
-                '<td>' + item.id + '</td>' +
-                '<td>' + item.created_by + '</td>' +
-                '<td>' + item.title + '</td>' +
-                '<td>' + item.description + '</td>' +
-                '<td>' + item.status + '</td>' +
-                '<td>' + item.priority + '</td>' +
-                '<td>' +
-                '<button class="btn btn-primary action-button" data-item-id="' + item.id + '">Action</button>' +
-                '</td>' +
-                '</tr>';
-            // Append the row to the table
-            $('#data-table').append(row);
-            // Add more columns as needed
-        });
-
-        // Optional: Add a click event for the action button
-        $('.action-button').on('click', function() {
-            var itemId = $(this).data('item-id');
-            // Perform an action when the button is clicked based on the item ID
-            // You can make another AJAX call or handle the action here
-            // Example:
-            // $.ajax({
-            //     url: '/perform-action/' + itemId,
-            //     method: 'POST',
-            //     // Additional data if needed
-            //     success: function(response) {
-            //         // Handle success
-            //     },
-            //     error: function() {
-            //         // Handle error
-            //     }
-            // });
-        });
-    },
-    error: function() {
-        alert('Failed to fetch data.');
-    }
-});
-
-    // Attach a click event listener to the <a> element
-    $('a[class="allticket"]').on('click', function(event) {
-        event.preventDefault(); // Prevent the <a> from navigating to a different page
-
-        // Read the data-id attribute
-        var id = $(this).data('id'); // Get the value of the data-id attribute
-
-        // Make an AJAX request to fetch data based on the ID
-        $.ajax({
-            url: '/fetch-dataAll/' + id, // Update the URL to include the ID
-            method: 'GET',
-            success: function(data) {
-                // Clear any existing data in the table
-                $('#data-table').empty();
-
-                // Add the fetched data to the table
-                $.each(data, function(index, item) {
-                    $('#data-table').append(
-                      '<tr><td>' + item.id + 
-                      '</td><td>' + item.created_by + 
-                      '</td><td>' + item.title + 
-                      '</td><td>' + item.description + 
-                      '</td><td>' + item.status + 
-                      '</td><td>' + item.priority + 
-                      '</td></tr>');
-                    // Add more columns as needed
-                });
-            },
-            error: function() {
-                alert('Failed to fetch data.');
-            }
-        });
-        console.log('It success getting this:', id);
-    });
-
-    $(document).ready(function() {
-        @if ($errors->any() || session('error'))
-            $('#addUserModal').modal('show');
-        @endif
-    });
-</script>
 @endsection

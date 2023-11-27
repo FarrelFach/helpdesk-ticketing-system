@@ -37,8 +37,15 @@ class TicketController extends Controller
                     ->get();
         $takentickets = Ticket::with(['creator', 'assignedTo', 'category'])
                     ->where('status', 'In Progress')
-                    ->orWhere('status', 'To Be Confirmed...')
+                    ->orWhere('status', 'To Be Confirmed')
                     ->where('assigned_to', Auth::user()->id)
+                    ->orderByRaw("
+                    CASE 
+                        WHEN priority = 'To Be Confirmed' THEN 1 
+                        WHEN priority = 'In Progress' THEN 2
+                        ELSE 4 
+                    END
+                    ")
                     ->get();
         return view('ticket.ticket', compact('opentickets', 'takentickets'));
     }
@@ -159,7 +166,7 @@ class TicketController extends Controller
     public function openAll()
     {
             // Find the ticket by its ID
-        $ticketsInProgress = Ticket::where('status', 'In Progress')->get();
+        $ticketsInProgress = Ticket::whereNot('status', 'Open')->get();
         foreach ($ticketsInProgress as $ticket) {
             $ticket->status = 'Open';
             $ticket->save();
