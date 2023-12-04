@@ -2,13 +2,13 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="dataModalLabel">Data from Database</h5>
+                <h5 class="modal-title">Data from Database</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <table id="tbody" class="table table-bordered table-hover table-responsive">
+                <table id="tbody1" class="table table-bordered table-hover table-responsive">
                   <thead>
                   <tr>
                     <th>No</th>
@@ -34,7 +34,7 @@
                     <td>
                     <div class="row">
                         <div class="col">
-                          <a href="#" class="update-status btn btn-sm btn-primary btn-block" data-id="{{ $data->id }}" data-status="Closed">accept</a>
+                          <a href="#" class="btn btn-sm btn-primary btn-block" data-dismiss="modal" data-target="#Confirmation" data-id="{{$data->id}}">accept</a>
                         </div>
                         <div class="col">
                           <a class="btn btn-sm btn-primary btn-block">Detail</a>
@@ -49,41 +49,111 @@
         </div>
     </div>
 </div>
+<div class="modal fade bd-example-modal-lg" id="Confirmation" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Data from Database</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+              <form id="myForm" method="POST">
+                  {{ csrf_field() }}
+                  <input type=text id="id" name="id">
+                  <h5>Terima Penyelesaian?</h5>
+                <div >
+                <button type=submit id="submitFormNo" data-status="Open">Denied</button>
+                <button type=submit id="submitFormYes" data-status="Closed">Accept</button>
+                </div>
+              </form>
+              </div>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- jQuery (Include jQuery only once) -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+  $(document).on('click', 'a[data-target="#Confirmation"]', function(event) {
+        event.preventDefault(); // Prevent the <a> from navigating to a different page
+
+        // Read the data-id attribute
+        var id = $(this).data('id'); // Get the value of the data-id attribute
+        $('#id').val(id); 
+        $('#Confirmation').modal('show');
+        console.log('The fuck:', id);
+    });
+    
+    $(document).ready(function () {
+      $('#dataModal4').on('show.bs.modal', function() {
+        $('#tbody1').load(document.URL + ' #tbody1');
+    });
+  });
+
   $(document).ready(function () {
-    $('.update-status').click(function (e) {
+    $('#submitFormNo').click(function (e) {
         e.preventDefault(); // Prevent the default link behavior
 
-        var link = $(this);
-        var ticketId = link.data('id')
-        var newStatus = link.data('status');
+        var formData = $('#myForm').serialize();
+        var newStatus = $(this).data('status');
+        id = $("#id").val();
 
-        console.log('Clicked link with ticket ID:', ticketId);
+        console.log('Clicked link with ticket ID:', formData);
         console.log('New status:', newStatus);
-
-        // Disable the link to prevent further updates
-        link.prop('disabled', true);
+        console.log('id:', id);
 
         // Send an AJAX request to update the status to 'pending'
         $.ajax({
-            url: '/update-ticket-status/' + ticketId,
+            url: '/update-ticket/' + id,
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Include the CSRF token
             },
-            data: { status: newStatus },
+            data: { formData, status: newStatus,},
             success: function (response) {
-              $('#status_' + ticketId).text(response.updatedStatus);
-              setTimeout(function() {
-                  $('#tbody').load(document.URL + ' #tbody');
-              }, 3000);
+              console.log('response:', response);
+              console.log('status: ', response.status);
+              console.log('id: ', response.id);
+              $('#Confirmation').modal('hide');
+              $('#dataModal4').modal('show');
+              $('#tbcount').load(document.URL + ' #tbcount');
+            },
+            error: function (xhr, status, error, response) {
+                console.error(error);
+                console.log('gagal goblok ', response);
+            }
+        });
+    });
+
+    $('#submitFormYes').click(function (e) {
+        e.preventDefault(); // Prevent the default link behavior
+
+        var formData = $('#myForm').serialize();
+        var newStatus = $(this).data('status');
+        id = $("#id").val();
+
+        console.log('Clicked link with ticket ID:', formData);
+        console.log('New status:', newStatus);
+        console.log('id:', id);
+
+        // Send an AJAX request to update the status to 'pending'
+        $.ajax({
+            url: '/update-ticket/' + id,
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Include the CSRF token
+            },
+            data: { status: newStatus, formData },
+            success: function (response) {
+              console.log('The response:', response);
+              $('#Confirmation').modal('hide');
+              $('#dataModal4').modal('show');
+              $('#tbcount').load(document.URL + ' #tbcount');
             },
             error: function (xhr, status, error) {
                 console.error(error);
-                // Re-enable the link in case of an error
-                link.prop('disabled', false);
+                console.log('gagal goblok');
             }
         });
     });

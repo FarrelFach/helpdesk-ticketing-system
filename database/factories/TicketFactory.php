@@ -26,7 +26,6 @@ class TicketFactory extends Factory
         'status' => fake()->randomElement(['Open', 'Closed', 'In Progress']),
         'priority' => fake()->randomElement(['High', 'Medium', 'Low']),
         'creator_id' => User::inRandomOrder()->first()->id,
-        'assigned_to' => User::inRandomOrder()->first()->id,
         'category_id' => Category::inRandomOrder()->first()->id,
         'created_at' => fake()->dateTimeBetween('-1 year', 'now'),
         'updated_at' => fake()->dateTimeBetween('-1 year', 'now'),

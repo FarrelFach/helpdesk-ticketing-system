@@ -2,13 +2,13 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="dataModalLabel">Data from Database</h5>
+                <h5 class="modal-title">Data from Database</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <table id="example2" class="table table-bordered table-hover table-responsive table-sm">
+                <table class="table table-bordered table-hover table-responsive">
                   <thead>
                   <tr>
                     <th>No</th>

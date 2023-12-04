@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Session;
 use App\Models\Ticket;
+use App\Models\Category;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -34,6 +36,7 @@ class TicketController extends Controller
                         ELSE 4 
                     END
                     ")
+                    ->orderBy('id')
                     ->get();
         $takentickets = Ticket::with(['creator', 'assignedTo', 'category'])
                     ->where('status', 'In Progress')
@@ -46,6 +49,7 @@ class TicketController extends Controller
                         ELSE 4 
                     END
                     ")
+                    ->orderBy('id')
                     ->get();
         return view('ticket.ticket', compact('opentickets', 'takentickets'));
     }
@@ -95,7 +99,7 @@ class TicketController extends Controller
     public function show(Ticket $ticket)
     {
         $Ticket = Ticket::find($ticket);
-        return view('ticket.tiket', compact('Ticket'));
+        return response()->json(['ticket' => $ticket]);
     }
 
     /**
@@ -106,7 +110,13 @@ class TicketController extends Controller
      */
     public function edit(Ticket $ticket)
     {
-        //
+        $Ticket = Ticket::with(['creator', 'assignedTo', 'category'])->first('id', $ticket);
+        $Category = new Category;
+        $user = new User;
+        if (!$Ticket) {
+            return view('ticket.error');
+        }
+        return view('ticket.edit', compact('Ticket', 'Category', 'user'));
     }
 
     /**
@@ -118,7 +128,14 @@ class TicketController extends Controller
      */
     public function update(Request $request, Ticket $ticket)
     {
-        //
+        $Ticket = Ticket::find($ticket);
+        $Ticket->title = $request->title;
+        $Ticket->description = $request->description;
+        $Ticket->category = $request->category;
+        $Ticket->priority = $request->priority;
+        $Ticket->deparment = $request->department;
+        $Ticket->assigned_to = $request->department;
+        $Ticket->save();
     }
 
     /**
@@ -150,18 +167,31 @@ class TicketController extends Controller
     {
         try{
             $status = $request->input('status');
-            $ticket = Ticket::findOrFail($ticketId);
+            $assignee = $request->input('assignee');
+            $ticket = Ticket::with(['creator', 'assignedTo', 'category'])
+                            ->findOrFail($ticketId);
             // Update the status of the ticket
-            $ticket->status = $status;
+            if ($ticket->assigned_to !== null){
+                $ticket->status = $status;
+            }
+            else {
+                $ticket->status = $status;
+                $ticket->assigned_to = $assignee;
+            }
             $ticket->save();
-    
-            return response()->json(['updatedStatus' => $ticket->status]);
+
+            return response()->json([
+                'updatedStatus' => $ticket->status,
+                'updatedAssigned' => $ticket->creator->name,
+                'cekingIn' => "if you are reading this, it is a success"
+            ]);
         } catch (\Exception $e) {
             // Log the error for debugging
             \Log::error($e);
             return response()->json(['error' => 'An error occurred while updating the ticket status.']);
         }
     }
+    
 
     public function openAll()
     {
@@ -172,5 +202,20 @@ class TicketController extends Controller
             $ticket->save();
         }
         return redirect('ticket');
+    }
+
+    public function empty()
+    {
+        // empty ticket table
+        Ticket::truncate();
+        return redirect('ticket');
+    }
+
+    public function fetchTicket(Request $request, $id)
+    {
+        $tickets = Ticket::with(['creator', 'assignedTo', 'category'])
+                    ->where('id', $id)
+                    ->get();
+        return response()->json($tickets);
     }
 }

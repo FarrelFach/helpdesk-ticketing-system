@@ -20,11 +20,11 @@ return new class extends Migration
             $table->string('status');
             $table->string('priority');
             $table->unsignedBigInteger('creator_id');
-            $table->foreign('creator_id')->references('id')->on('users');
+            $table->foreign('creator_id')->references('id')->on('users')->onDelete('set null');
             $table->unsignedBigInteger('assigned_to')->nullable();
-            $table->foreign('assigned_to')->references('id')->on('users');
+            $table->foreign('assigned_to')->references('id')->on('users')->onDelete('set null');
             $table->unsignedBigInteger('category_id'); // Add the foreign key column
-            $table->foreign('category_id')->references('id')->on('categories'); // Define the relationship
+            $table->foreign('category_id')->references('id')->on('categories')->onDelete('set null'); // Define the relationship
             $table->timestamps();
         });
     }

@@ -31,7 +31,7 @@ class HomeController extends Controller
         $countOpen = Ticket::where('status', 'Open')
                     ->where('creator_id', Auth::user()->id)
                     ->count();
-        $countClose = Ticket::where('status', 'Closed')
+        $countClosed = Ticket::where('status', 'Closed')
                     ->where('creator_id', Auth::user()->id)
                     ->count();
         $countProgress = Ticket::where('status', 'In Progress')
@@ -52,20 +52,24 @@ class HomeController extends Controller
                     ->get();
         $opentickets = Ticket::with(['creator', 'assignedTo', 'category'])
                     ->where('status', 'Open')
+                    ->where('creator_id', Auth::user()->id)
                     ->get();
         $progresstickets = Ticket::with(['creator', 'assignedTo', 'category'])
                     ->where('status', 'In Progress')
+                    ->where('creator_id', Auth::user()->id)
                     ->get();
         $closedtickets = Ticket::with(['creator', 'assignedTo', 'category'])
                     ->where('status', 'Closed')
+                    ->where('creator_id', Auth::user()->id)
                     ->get();
         $tbctickets = Ticket::with(['creator', 'assignedTo', 'category'])
                     ->where('status', 'To Be Confirmed')
+                    ->where('creator_id', Auth::user()->id)
                     ->get();
         return view('home', compact('Ticket', 
         'count', 
         'countOpen', 
-        'countClose', 
+        'countClosed', 
         'countProgress', 
         'countTBC', 
         'opentickets', 
@@ -96,20 +100,44 @@ class HomeController extends Controller
         return response()->json($data);
     }
 
-    public function updateTicket(Request $request, $ticketId)
+    public function updateTicket(Request $request, $id)
     {
         try{
             $status = $request->input('status');
-            $ticket = Ticket::findOrFail($ticketId);
+            $ticket = Ticket::with(['creator', 'assignedTo', 'category'])
+                            ->where("id", $id)
+                            ->first();
+
+            if (!$ticket) {
+                return response()->json([
+                    'error' => 'Ticket not found', 
+                    'id' => $ticketId,
+                    'status' => $status
+                ]);
+            }
             // Update the status of the ticket
-            $ticket->status = $status;
+            if ($status === "Open"){
+                $ticket->status = $status;
+                $ticket->assigned_to = null;
+            }
+            else {
+                $ticket->status = $status;
+            }
             $ticket->save();
-    
-            return response()->json(['updatedStatus' => $ticket->status]);
-        } catch (\Exception $e) {
+
+            return response()->json($ticket);
+        } catch (Exception $e) {
             // Log the error for debugging
-            \Log::error($e);
+            Log::error($e);
             return response()->json(['error' => 'An error occurred while updating the ticket status.']);
         }
+    }
+
+    public function fetchTicket($id)
+    {
+        $tickets = Ticket::with(['creator', 'assignedTo', 'category'])
+                    ->where('id', $id)
+                    ->get();
+        return response()->json([$tickets]);
     }
 }

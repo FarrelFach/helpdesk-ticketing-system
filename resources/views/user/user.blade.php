@@ -50,9 +50,6 @@
                           </form>
                         </div>
                         <div class="col-4">
-                          <a class="btn btn-sm btn-primary btn-block">Detail</a>
-                        </div>
-                        <div class="col-4">
                           <a class="btn btn-sm btn-primary btn-block">Edit</a>
                         </div>
                     </div>
