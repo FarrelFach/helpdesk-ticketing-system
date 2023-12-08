@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Ticket;
+use App\Models\Category;
+use App\Models\User;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\DB;
 class HomeController extends Controller
 {
     /**
@@ -49,6 +51,7 @@ class HomeController extends Controller
                         ELSE 4 
                     END
                     ")
+                    ->where('creator_id', Auth::user()->id)
                     ->get();
         $opentickets = Ticket::with(['creator', 'assignedTo', 'category'])
                     ->where('status', 'Open')
@@ -66,6 +69,12 @@ class HomeController extends Controller
                     ->where('status', 'To Be Confirmed')
                     ->where('creator_id', Auth::user()->id)
                     ->get();
+        $Category = Category::all();
+        $user = User::all();
+        $dataFromDB = Ticket::select('category_id', DB::raw('COUNT(*) as count'))
+                        ->groupBy('category_id')
+                        ->get();
+
         return view('home', compact('Ticket', 
         'count', 
         'countOpen', 
@@ -75,7 +84,11 @@ class HomeController extends Controller
         'opentickets', 
         'progresstickets',
         'closedtickets', 
-        'tbctickets',));
+        'tbctickets',
+        'user',
+        'Category',
+        'dataFromDB'
+    ));
     }
 
     public function show($status)

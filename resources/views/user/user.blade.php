@@ -50,7 +50,7 @@
                           </form>
                         </div>
                         <div class="col-4">
-                          <a class="btn btn-sm btn-primary btn-block">Edit</a>
+                          <a href="{{ url('user/'.$data->id.'/edit') }}" class="btn btn-sm btn-primary btn-block">Edit</a>
                         </div>
                     </div>
                     </td>

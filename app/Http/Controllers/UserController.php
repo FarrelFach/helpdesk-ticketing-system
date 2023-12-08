@@ -67,7 +67,7 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        //
+        
     }
 
     /**
@@ -78,7 +78,8 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        //
+        $user = User::find($id);
+        return view('user.edit', compact('user'));
     }
 
     /**
@@ -90,7 +91,42 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        if($request->password!==null){
+            $validatedData = $request->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'username' => ['required', 'string', 'max:255'],
+                'password' => ['required', 'string', 'min:8'],
+                'role' => ['required', 'in:admin,user'],
+                'nik' => ['required', 'string', 'max:255'],
+                'department' => ['required', 'string', 'max:255'],
+            ]);
+            $user = User::find($id);
+            $user->name = $validatedData['name'];
+            $user->username = $validatedData['username'];
+            $user->role = $validatedData['role'];
+            $user->nik = $validatedData['nik'];
+            $user->department = $validatedData['department'];
+            $user->password = bcrypt($validatedData['password']);
+        }
+        else{
+            $validatedData = $request->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'username' => ['required', 'string', 'max:255'],
+                'role' => ['required', 'in:admin,user'],
+                'nik' => ['required', 'string', 'max:255'],
+                'department' => ['required', 'string', 'max:255'],
+            ]);
+            $user = User::find($id);
+            $user->name = $validatedData['name'];
+            $user->username = $validatedData['username'];
+            $user->role = $validatedData['role'];
+            $user->nik = $validatedData['nik'];
+            $user->department = $validatedData['department'];
+        }
+
+            $user->save();
+
+            return redirect('user');
     }
 
     /**

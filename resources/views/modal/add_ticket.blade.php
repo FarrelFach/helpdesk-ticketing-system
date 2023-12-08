@@ -8,7 +8,7 @@
         </button>
       </div>
       <div class="modal-body">
-      <form method="POST" action="{{ url('ticket') }}" enctype="multipart/form-data">
+      <form method="POST" id="ticketForm" enctype="multipart/form-data">
 				@csrf
                         <div class="form-group">
                             <label for="exampleInputEmail1">Nama Pembuat</label>
@@ -23,6 +23,13 @@
                             <input type="text" class="form-control" id="exampleInputEmail1" name="judul" placeholder="Enter judul">
                         </div>
                         <div class="form-group">
+                            <label for="exampleInputEmail1">Kategori</label>
+                            <select name="category" class="custom-select mb-3" required>
+                            @foreach ($Category as $data)
+                                <option value="{{$data->id}}">{{$data->name}}</option>
+                            @endforeach
+                        </div>
+                        <div class="form-group">
                             <label for="exampleInputEmail1">Deskripsi</label>
                             <textarea type="text" class="form-control" id="description" name="description" placeholder="Enter description" rows="3"></textarea>
                         </div>
@@ -30,27 +37,24 @@
                         <label for="exampleInputEmail1">Prioritas (Tidak Wajib)</label>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="prioritas" value="low">
-                                <label class="form-check-label">Rendah</label>
+                                <label class="form-check-label">Low</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="prioritas" value="medium">
-                                <label class="form-check-label">Sedang</label>
+                                <label class="form-check-label">Medium</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="prioritas" value="high">
-                                <label class="form-check-label">Tinggi</label>
+                                <label class="form-check-label">High</label>
                             </div>
                         </div>
                         <!-- /.card-body -->
-
-                        <div class="card-footer">
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                        </div>
-                    </form>
-      </div>
+                    
+        </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="submit" id="addTicket" data-dismiss="modal" class="btn btn-primary">Submit</button>
         <button type="button" class="btn btn-primary">Save changes</button>
+        </form>
       </div>
     </div>
   </div>

@@ -117,7 +117,8 @@
               console.log('id: ', response.id);
               $('#Confirmation').modal('hide');
               $('#dataModal4').modal('show');
-              $('#tbcount').load(document.URL + ' #tbcount');
+              $('#count3').load(document.URL + ' #count3');
+              $('#count4').load(document.URL + ' #count4');
             },
             error: function (xhr, status, error, response) {
                 console.error(error);

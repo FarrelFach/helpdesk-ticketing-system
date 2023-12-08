@@ -2,167 +2,180 @@
 @section('title', 'List Ticket')
 @section('content')
 <section class="content">
-<div class="container-fluid">
-        <div class="row">
-          <div class="col-12">
-            <div class="card">
-              <div class="card-header">
-                <div class="row">
-                  <div class="col-8">
-                    <h3 class="card-title"><b>List Tiket In Progress</b></h3>
-                  </div>
-                  <div class="col-4">
-                    <a href="/openAll" class="btn btn-sm btn-primary m-2">Open All</a>
-                    <a href="/empty" class="btn btn-sm btn-primary m-2">Empty table</a>
-                  </div>
-                </div>
-              </div>
-              <!-- /.card-header -->
-              <div class="card-body">
-                <div class="table-responsive">
-                <table id="tbody1" class="table table-bordered table-hover table-responsive">
-                  <thead>
-                  <tr>
-                        <th>No</th>
-                        <th>id</th>
-                        <th>Title</th>
-                        <th>Category</th>
-                        <th>Creator</th>
-                        <th>Assigned To</th>
-                        <th>Status</th>
-                        <th>Priority</th>
-                        <th>action</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  @foreach ($takentickets as $data)
-                  <tr>
-                    <td>{{$loop->iteration}}</td>
-                    <td>{{ $data->id }}</td>
-                    <td>{{ strlen($data->title) > 30 ? substr($data->title, 0,30) . '...' : $data->title }}</td>
-                    <td>{{ $data->category->name }}</td>
-                    <td>{{ $data->creator->name }}</td>
-                    <td id="assignee_{{ $data->id }}">{{ $data->assignedTo ? $data->assignedTo->name : 'Not Assigned' }}</td>
-                    <td id="status_{{ $data->id }}">
-                        @if($data->status == 'Open')
-                            <span class="bg-success border border-success rounded p-2">{{ $data->status }}</span>
-                        @elseif($data->status == 'In Progress')
-                            <span class="bg-warning border border-warning rounded p-2">{{ $data->status }}</span>
-                        @elseif($data->status == 'To Be Confirmed')
-                            <span class="bg-info border border-info rounded p-2">{{ $data->status }}</span>
-                        @else
-                            <span class="bg-secondary border border-white rounded p-2">{{ $data->status }}</span>
-                        @endif
-                    </td>
-                    <td>{{ $data->priority }}</td>
-                    <td>
-                    <div class="row"> 
-                        <div class="col-4">
-                          <form action="{{ url('ticket/'.$data->id) }}" method="POST">
-								            @csrf
-                              <input type="hidden" name="_method" value="DELETE">
-                              <button class="btn btn-sm btn-danger btn-block m-2" type="submit">Hapus</button>
-                          </form>
-                        </div>
-                        <div class="col-4">
-                        <a href="#" class="update-status btn btn-sm btn-info btn-block m-2" data-id="{{ $data->id }}" data-status="To Be Confirmed">Done</a>
-                        </div>
-                        <div class="col-4">
-                          <button type="button" class="btn btn-sm btn-primary btn-block m-2" data-toggle="modal" data-target="#DetailModal">Detail</button>
-                        </div>
-                        <div class="col-4">
-                          <a href="/edit/{{$data->id}}" class="btn btn-sm btn-primary btn-block m-2">Edit</a>
-                        </div>
-                    </div>
-                    </td>
-                  </tr>
-                  @endforeach
-                </table>
-                
-                </div>
-              </div>
-              <!-- /.card-body -->
-            </div>
-          </div>
-          <div class="col-12">
-            <div class="card">
-              <div class="card-header">
-                <div class="row">
-                  <div class="col">
-                    <h3 class="card-title">List Tiket</h3>
-                  </div>
-                  <div class="col-2">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addModal">Buat Tiket</button>
-                  </div>
-                </div>
-              </div>
-              <!-- /.card-header -->
-              <div class="card-body">
-                <div class="table-responsive">
-                <table id="tbody2" class="table table-bordered table-hover table-responsive">
-                  <thead>
-                  <tr>
-                        <th>No</th>
-                        <th>id</th>
-                        <th>Title</th>
-                        <th>Category</th>
-                        <th>Creator</th>
-                        <th>Assigned To</th>
-                        <th>Status</th>
-                        <th>Priority</th>
-                        <th>action</th>
-                  </tr>
-                  </thead>
-                  <tbody >
-                  @foreach ($opentickets as $data)
-                  <tr>
-                    <td>{{$loop->iteration}}</td>
-                    <td>{{ $data->id }}</td>
-                    <td>{{ strlen($data->title) > 30 ? substr($data->title, 0, 30) . '...' : $data->title }}</td>
-                    <td>{{ $data->category->name }}</td>
-                    <td>{{ $data->creator->name }}</td>
-                    <td id="assignee_{{ $data->id }}">{{ $data->assignedTo ? $data->assignedTo->name : 'Not Assigned' }}</td>
-                    <td id="status_{{ $data->id }}">
-                        @if($data->status == 'Open')
-                            <span class="bg-success border border-success rounded p-2">{{ $data->status }}</span>
-                        @elseif($data->status == 'In Progress')
-                            <span class="bg-warning border border-warning rounded p-2">{{ $data->status }}</span>
-                        @else
-                            <span class="bg-secondary border border-white rounded p-2">{{ $data->status }}</span>
-                        @endif
-                    </td>
-                    <td>{{ $data->priority }}</td>
-                    <td>
-                    <div class="row"> 
-                        <div class="col-4">
-                          <form action="{{ url('ticket/'.$data->id) }}" method="POST">
-								            @csrf
-                              <input type="hidden" name="_method" value="DELETE">
-                              <button class="btn btn-sm btn-danger btn-block m-2" type="submit">Hapus</button>
-                          </form>
-                        </div>
-                        <div class="col-4">
-                          <a href="#" class="update-status btn btn-sm btn-primary btn-block m-2" data-id="{{ $data->id }}" data-status="In Progress" data-assignee="{{ auth()->user()->id }}">take</a>
-                        </div>
-                        <div class="col-4">
-                          <a href="#" class="btn btn-sm btn-primary btn-block m-2" data-toggle="modal" data-target="#ticketModal1" data-id="{{ $data->id }}">detail</a>
-                        </div>
-                        <div class="col-4">
-                          <a href="{{ route('ticket.edit', ['ticket' => $data->id]) }}" class="btn btn-sm btn-primary btn-block m-2">Edit</a>
-                        </div>
-                    </div>
-                    </td>
-                  </tr>
-                  @endforeach
-                    </tbody>
-                </table>
-                </div>
-              </div>
-              <!-- /.card-body -->
-            </div>
-          </div>
-        </div>
-      </div>
+    <div class="container-fluid">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="open-tab" data-toggle="tab" data-target="#open" type="button" role="tab" aria-controls="open" aria-selected="false">Ticket</button>
+		</li>
+		@can('isAdmin')
+		<li class="nav-item" role="presentation">
+			<button class="nav-link active" id="taken-tab" data-toggle="tab" data-target="#taken" type="button" role="tab" aria-controls="taken" aria-selected="true">Taken Ticket</button>
+		</li>
+		@endcan
+    </ul>
+    <div class="tab-content" id="myTabContent">
+					<div class="tab-pane fade show active" id="open" role="tabpanel" aria-labelledby="open-tab">
+				  <div class="card">
+					  <div class="card-header">
+						<div class="row">
+						  <div class="col">
+							<h3 class="card-title">List Tiket</h3>
+						  </div>
+						  <div class="col-2">
+							<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addModal">Buat Tiket</button>
+						  </div>
+						</div>
+					  </div>
+					  <!-- /.card-header -->
+					  <div class="card-body">
+						<div class="table-responsive">
+						<table id="tbody2" class="table table-bordered table-hover table-responsive">
+						  <thead>
+							  <tr>
+									<th>No</th>
+									<th>id</th>
+									<th>Title</th>
+									<th>Category</th>
+									<th>Creator</th>
+									<th>Assigned To</th>
+									<th>Status</th>
+									<th>Priority</th>
+									<th>action</th>
+							  </tr>
+						  </thead>
+							<tbody >
+							  @foreach ($opentickets as $data)
+							  <tr>
+								<td>{{$loop->iteration}}</td>
+								<td>{{ $data->id }}</td>
+								<td>{{ strlen($data->title) > 30 ? substr($data->title, 0, 30) . '...' : $data->title }}</td>
+								<td>{{ $data->category->name }}</td>
+								<td>{{ $data->creator->name }}</td>
+								<td id="assignee_{{ $data->id }}">{{ $data->assignedTo ? $data->assignedTo->name : 'Not Assigned' }}</td>
+								<td id="status_{{ $data->id }}">
+									@if($data->status == 'Open')
+										<span class="bg-success border border-success rounded p-2">{{ $data->status }}</span>
+									@elseif($data->status == 'In Progress')
+										<span class="bg-warning border border-warning rounded p-2">{{ $data->status }}</span>
+									@else
+										<span class="bg-secondary border border-white rounded p-2">{{ $data->status }}</span>
+									@endif
+								</td>
+								<td>{{ $data->priority }}</td>
+								<td>
+									<div class="row">
+										<div class="col">
+										  <a href="#" class="btn btn-sm btn-primary btn-block m-2" data-toggle="modal" data-target="#ticketModal1" data-id="{{ $data->id }}">detail</a>
+										</div> 
+										@can('isAdmin')
+										<div class="col-4">
+										  <form action="{{ url('ticket/'.$data->id) }}" method="POST">
+															@csrf
+											  <input type="hidden" name="_method" value="DELETE">
+											  <button class="btn btn-sm btn-danger btn-block m-2" type="submit">Hapus</button>
+										  </form>
+										</div>
+										<div class="col-4">
+										  <a href="#" class="update-status btn btn-sm btn-primary btn-block m-2" data-id="{{ $data->id }}" data-status="In Progress" data-assignee="{{ auth()->user()->id }}">take</a>
+										</div>
+										<div class="col-4">
+										  <a href="{{ route('ticket.edit', ['ticket' => $data->id]) }}" class="btn btn-sm btn-primary btn-block m-2">Edit</a>
+										</div>
+										@endcan
+									</div>
+								</td>
+							  </tr>
+							  @endforeach
+							</tbody>
+						</table>
+						</div>
+					  </div>
+				  <!-- /.card-body -->
+				</div>
+			  </div>
+			  @can('isAdmin')
+			<div class="tab-pane fade" id="taken" role="tabpanel" aria-labelledby="taken-tab">
+				<div class="card">
+				  <div class="card-header">
+					<div class="row">
+					  <div class="col-8">
+						<h3 class="card-title"><b>List Tiket In Progress</b></h3>
+					  </div>
+					  <div class="col-4">
+						<a href="/openAll" class="btn btn-sm btn-primary m-2">Open All</a>
+						<a href="/empty" class="btn btn-sm btn-primary m-2">Empty table</a>
+					  </div>
+					</div>
+				  </div>
+				  <!-- /.card-header -->
+				  <div class="card-body">
+					<div class="table-responsive">
+						<table id="tbody1" class="table table-bordered table-hover table-responsive">
+						  <thead>
+						  <tr>
+								<th>No</th>
+								<th>id</th>
+								<th>Title</th>
+								<th>Category</th>
+								<th>Creator</th>
+								<th>Assigned To</th>
+								<th>Status</th>
+								<th>Priority</th>
+								<th>action</th>
+						  </tr>
+						  </thead>
+						  <tbody>
+						  @foreach ($takentickets as $data)
+						  <tr>
+							<td>{{$loop->iteration}}</td>
+							<td>{{ $data->id }}</td>
+							<td>{{ strlen($data->title) > 30 ? substr($data->title, 0,30) . '...' : $data->title }}</td>
+							<td>{{ $data->category->name }}</td>
+							<td>{{ $data->creator->name }}</td>
+							<td id="assignee_{{ $data->id }}">{{ $data->assignedTo ? $data->assignedTo->name : 'Not Assigned' }}</td>
+							<td id="status_{{ $data->id }}">
+								@if($data->status == 'Open')
+									<span class="bg-success border border-success rounded p-2">{{ $data->status }}</span>
+								@elseif($data->status == 'In Progress')
+									<span class="bg-warning border border-warning rounded p-2">{{ $data->status }}</span>
+								@elseif($data->status == 'To Be Confirmed')
+									<span class="bg-info border border-info rounded p-2">{{ $data->status }}</span>
+								@else
+									<span class="bg-secondary border border-white rounded p-2">{{ $data->status }}</span>
+								@endif
+							</td>
+							<td>{{ $data->priority }}</td>
+							<td>
+							<div class="row"> 
+								<div class="col-4">
+								  <form action="{{ url('ticket/'.$data->id) }}" method="POST">
+													@csrf
+									  <input type="hidden" name="_method" value="DELETE">
+									  <button class="btn btn-sm btn-danger btn-block m-2" type="submit">Hapus</button>
+								  </form>
+								</div>
+								<div class="col-4">
+									<a href="#" class="update-status btn btn-sm btn-info btn-block m-2" data-id="{{ $data->id }}" data-status="To Be Confirmed">Done</a>
+								</div>
+								<div class="col-4">
+								  <button type="button" class="btn btn-sm btn-primary btn-block m-2" data-toggle="modal" data-target="#DetailModal">Detail</button>
+								</div>
+								<div class="col-4">
+								  <a href="/edit/{{$data->id}}" class="btn btn-sm btn-primary btn-block m-2">Edit</a>
+								</div>
+							</div>
+							</td>
+						  </tr>
+						  @endforeach
+						</table>
+						</div>
+					  </div>
+					  <!-- /.card-body -->
+					</div>
+				  </div>
+			  </div>			  
+				@endcan
+			</div>
 </section>
             <!-- /.card -->
 <!-- jQuery (Include jQuery only once) -->
@@ -292,6 +305,40 @@ $(document).on('click', 'a[data-target="#ticketModal1"]', function(event) {
                 alert('Failed to fetch data.');
             }
         });
+    });
+
+$(document).ready(function () {
+    $('#addTicket').click(function (e) {
+        e.preventDefault(); // Prevent the default link behavior
+
+        var formData = $('#ticketForm').serialize();
+
+        console.log('Clicked link with ticket ID:', formData);
+        $.ajax({
+            url: '/add-ticket',
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Include the CSRF token
+            },
+            data: formData,
+            success: function (response) {
+              console.log('response:', response);
+			  $('#tbody2').load(document.URL + ' #tbody2');
+              $('#addModal').modal('hide');
+            },
+            error: function (xhr, status, error, response) {
+                console.error(error);
+                console.log('gagal goblok ', response);
+            }
+        });
+    });
+});
+
+$(document).ready(function() {
+        @if ($errors->any())
+            $('#addModal').modal('show');
+            $('#errorMessage').html('<strong>{{ $errors->first() }}</strong>');
+        @endif
     });
 </script>
 @endsection

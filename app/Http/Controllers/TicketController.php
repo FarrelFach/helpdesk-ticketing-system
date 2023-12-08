@@ -26,6 +26,8 @@ class TicketController extends Controller
 
     public function index()
     {
+        $Category = Category::all();
+        $user = User::all();
         $opentickets = Ticket::with(['creator', 'assignedTo', 'category'])
                     ->where('status', 'Open')
                     ->orderByRaw("
@@ -51,7 +53,7 @@ class TicketController extends Controller
                     ")
                     ->orderBy('id')
                     ->get();
-        return view('ticket.ticket', compact('opentickets', 'takentickets'));
+        return view('ticket.ticket', compact('opentickets', 'takentickets', 'Category', 'user'));
     }
 
     /**
@@ -80,14 +82,19 @@ class TicketController extends Controller
             'prioritas' => 'required',
         ]);
         $tkt = new Ticket;
-        $tkt->created_by = Auth::user()->name;
+        $tkt->title = $validatedData['judul'];
+        $tkt->description = $validatedData['description'];
+        $tkt->priority = $validatedData['prioritas'];
+        $tkt->creator_id = Auth::user()->id;
+        $tkt->category_id = $request->category;
         $tkt->status = "Open";
         $tkt->created_at = $currentDate;
+        $tkt->updated_at = $currentDate;
         $tkt->save();
 
         Session::flash('success', 'Data berhasil ditambah');
 
-        return redirect('ticket');
+        return response()->json($tkt);
     }
 
     /**
@@ -110,13 +117,10 @@ class TicketController extends Controller
      */
     public function edit(Ticket $ticket)
     {
-        $Ticket = Ticket::with(['creator', 'assignedTo', 'category'])->first('id', $ticket);
-        $Category = new Category;
-        $user = new User;
-        if (!$Ticket) {
-            return view('ticket.error');
-        }
-        return view('ticket.edit', compact('Ticket', 'Category', 'user'));
+        $ticket = Ticket::with(['creator', 'assignedTo', 'category'])->find($ticket->id);
+        $Category = Category::all();
+        $user = User::all();
+        return view('ticket.edit', compact('ticket', 'Category', 'user'));
     }
 
     /**
@@ -126,7 +130,7 @@ class TicketController extends Controller
      * @param  \App\Models\Ticket  $ticket
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Ticket $ticket)
+    public function update(Request $request, $ticket)
     {
         $Ticket = Ticket::find($ticket);
         $Ticket->title = $request->title;
@@ -135,6 +139,7 @@ class TicketController extends Controller
         $Ticket->priority = $request->priority;
         $Ticket->deparment = $request->department;
         $Ticket->assigned_to = $request->department;
+        $Ticket->updated_at = Carbon::now()->format('Y-m-d');
         $Ticket->save();
     }
 
@@ -173,10 +178,12 @@ class TicketController extends Controller
             // Update the status of the ticket
             if ($ticket->assigned_to !== null){
                 $ticket->status = $status;
+                $ticket->updated_at = Carbon::now()->format('Y-m-d');
             }
             else {
                 $ticket->status = $status;
                 $ticket->assigned_to = $assignee;
+                $ticket->updated_at = Carbon::now()->format('Y-m-d');
             }
             $ticket->save();
 

@@ -42,6 +42,7 @@
               </p>
             </a>
           </li>
+          @can('isAdmin')
           <li class="nav-item">
             <a href="{{ url('ticket') }}" class="nav-link">
               <i class="nav-icon fas fa-columns text-success"></i>
@@ -66,6 +67,7 @@
               </p>
             </a>
           </li>
+          @endcan
         </ul>
       </nav>
       <!-- /.sidebar-menu -->
