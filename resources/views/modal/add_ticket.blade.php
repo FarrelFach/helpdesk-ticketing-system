@@ -7,9 +7,9 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="modal-body">
-      <form method="POST" id="ticketForm" enctype="multipart/form-data">
-				@csrf
+          <div class="modal-body">
+              <form method="POST" id="ticketForm" enctype="multipart/form-data">
+                  @csrf
                         <div class="form-group">
                             <label for="exampleInputEmail1">Nama Pembuat</label>
                             <p>{{ auth()->user()->name }}</p>
@@ -28,13 +28,14 @@
                             @foreach ($Category as $data)
                                 <option value="{{$data->id}}">{{$data->name}}</option>
                             @endforeach
+                            </select>
                         </div>
                         <div class="form-group">
                             <label for="exampleInputEmail1">Deskripsi</label>
                             <textarea type="text" class="form-control" id="description" name="description" placeholder="Enter description" rows="3"></textarea>
                         </div>
                         <div class="form-group">
-                        <label for="exampleInputEmail1">Prioritas (Tidak Wajib)</label>
+                        <label for="exampleInputEmail1">Prioritas</label>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="prioritas" value="low">
                                 <label class="form-check-label">Low</label>
@@ -48,13 +49,13 @@
                                 <label class="form-check-label">High</label>
                             </div>
                         </div>
-                        <!-- /.card-body -->
-                    
-        </div>
-      <div class="modal-footer">
-        <button type="submit" id="addTicket" data-dismiss="modal" class="btn btn-primary">Submit</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-        </form>
+                        <div class="form-group">
+                          <input type="file" name="image1" id="image1" />
+                        </div>
+                        <button type="submit" id="ticketForm" class="btn btn-primary">Submit</button>
+                      </form>
+                    </div>
+              <div class="modal-footer">
       </div>
     </div>
   </div>

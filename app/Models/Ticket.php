@@ -26,4 +26,14 @@ class Ticket extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function attachment()
+    {
+        return $this->hasMany(Attachment::class, 'ticket_id', 'id');
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class, 'ticket_id', 'id');
+    }
 }

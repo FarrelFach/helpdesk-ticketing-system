@@ -23,7 +23,7 @@ class TicketFactory extends Factory
         return [
         'title' => fake()->sentence,
         'description' => fake()->paragraph,
-        'status' => fake()->randomElement(['Open', 'Closed', 'In Progress']),
+        'status' => fake()->randomElement(['Open']),
         'priority' => fake()->randomElement(['High', 'Medium', 'Low']),
         'creator_id' => User::inRandomOrder()->first()->id,
         'category_id' => Category::inRandomOrder()->first()->id,

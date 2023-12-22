@@ -9,7 +9,7 @@
               <div class="card-header">
                 <div class="row">
                   <div class="col">
-                    <h3 class="card-title">List Tiket</h3>
+                    <h3 class="card-title">List Category</h3>
                   </div>
                 </div>
               </div>
@@ -22,7 +22,6 @@
                     <th>no</th>
                     <th>id</th>
                     <th>category</th>
-                    <th>action</th>
                   </tr>
                   </thead>
                   <tbody>
@@ -31,20 +30,17 @@
                     <td>{{$loop->iteration}}</td>
                     <td>{{ $data->id }}</td>
                     <td>{{ $data->name }}</td>
-                    <td>
+                    <!--td>
                     <div class="row"> 
                         <div class="col-4">
                           <form action="{{ url('category/'.$data->id) }}" method="POST">
 								            @csrf
                               <input type="hidden" name="_method" value="DELETE">
-                              <button class="btn btn-sm btn-danger btn-block" type="submit">Hapus</button>
+                              <button class="btn btn-sm btn-danger" type="submit">Hapus</button>
                           </form>
                         </div>
-                        <div class="col-4">
-                          <a class="btn btn-sm btn-primary btn-block">Edit</a>
-                        </div>
                     </div>
-                    </td>
+                    </td-->
                   </tr>
                   @endforeach
                 </table>
@@ -56,7 +52,7 @@
           <div clas="col-6">
             <div class="card">
               <div class="card-header">
-                    <h3 class="card-title">List Tiket</h3>
+                    <h3 class="card-title">Add Category</h3>
               </div>
               <!-- /.card-header -->
               <div class="card-body">

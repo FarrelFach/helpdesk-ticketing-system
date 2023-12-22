@@ -6,9 +6,12 @@ use Illuminate\Http\Request;
 use App\Models\Ticket;
 use App\Models\Category;
 use App\Models\User;
+use App\Models\Attachment;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+
 class HomeController extends Controller
 {
     /**
@@ -30,19 +33,19 @@ class HomeController extends Controller
     public function index()
     {
         $count = Ticket::where('creator_id', Auth::user()->id)->count();
-        $countOpen = Ticket::where('status', 'Open')
-                    ->where('creator_id', Auth::user()->id)
-                    ->count();
-        $countClosed = Ticket::where('status', 'Closed')
-                    ->where('creator_id', Auth::user()->id)
-                    ->count();
-        $countProgress = Ticket::where('status', 'In Progress')
-                    ->where('creator_id', Auth::user()->id)
-                    ->count();
-        $countTBC = Ticket::where('status', 'To Be Confirmed')
-                    ->where('creator_id', Auth::user()->id)
-                    ->count();
-        $Ticket = Ticket::with(['creator', 'assignedTo', 'category'])
+        $allcount = Ticket::all()->count();
+        //admin count
+        $allopenCount = Ticket::where('status', 'Open')->count();
+        $allinProgressCount = Ticket::where('status', 'In Progress')->count();
+        $alltbcCount = Ticket::where('status', 'To Be Confirmed')->count();
+        $allclosedCount = Ticket::where('status', 'Closed')->count();
+        //usercount
+        $openCount = Ticket::where('status', 'Open')->where('creator_id', Auth::user()->id)->count();
+        $inProgressCount = Ticket::where('status', 'In Progress')->where('creator_id', Auth::user()->id)->count();
+        $tbcCount = Ticket::where('status', 'To Be Confirmed')->where('creator_id', Auth::user()->id)->count();
+        $closedCount = Ticket::where('status', 'Closed')->where('creator_id', Auth::user()->id)->count();
+                    
+        $Ticket = Ticket::with(['creator', 'assignedTo', 'category', 'attachment'])
                     ->orderByRaw("
                     CASE 
                         WHEN status = 'To Be Confirmed...' THEN 1 
@@ -52,23 +55,54 @@ class HomeController extends Controller
                     END
                     ")
                     ->where('creator_id', Auth::user()->id)
-                    ->get();
-        $opentickets = Ticket::with(['creator', 'assignedTo', 'category'])
-                    ->where('status', 'Open')
+                    ->paginate(10);
+        $usertickets = Ticket::with(['creator', 'assignedTo', 'category', 'attachment' => function ($query) {
+                        $query->whereIn('detail', ['first', 'second']);
+                    }])
+                    ->whereIn('status', ['Open', 'In Progress', 'Closed', 'To Be Confirmed'])
                     ->where('creator_id', Auth::user()->id)
-                    ->get();
-        $progresstickets = Ticket::with(['creator', 'assignedTo', 'category'])
-                    ->where('status', 'In Progress')
-                    ->where('creator_id', Auth::user()->id)
-                    ->get();
-        $closedtickets = Ticket::with(['creator', 'assignedTo', 'category'])
-                    ->where('status', 'Closed')
-                    ->where('creator_id', Auth::user()->id)
-                    ->get();
-        $tbctickets = Ticket::with(['creator', 'assignedTo', 'category'])
-                    ->where('status', 'To Be Confirmed')
-                    ->where('creator_id', Auth::user()->id)
-                    ->get();
+                    ->orderBy('updated_at')
+                    ->orderBy('id')
+                    ->paginate(10);
+
+                    $openTickets = $usertickets->filter(function ($ticket) {
+                        return $ticket->status === 'Open';
+                    });
+    
+                    $inProgressTickets = $usertickets->filter(function ($ticket) {
+                        return $ticket->status === 'In Progress';
+                    });
+
+                    $tbcTickets = $usertickets->filter(function ($ticket) {
+                        return $ticket->status === 'To Be Confirmed';
+                    });
+    
+                    $closedTickets = $usertickets->filter(function ($ticket) {
+                        return $ticket->status === 'Closed';
+                    });
+        $allTickets = Ticket::with(['creator', 'assignedTo', 'category', 'attachment' => function ($query) {
+                        $query->whereIn('detail', ['first', 'second']);
+                    }])
+                    ->whereIn('status', ['Open', 'In Progress', 'Closed', 'To Be Confirmed'])
+                    ->orderBy('updated_at')
+                    ->orderBy('id')
+                    ->paginate(10);
+
+                $allopenTickets = $allTickets->filter(function ($ticket) {
+                    return $ticket->status === 'Open';
+                });
+
+                $allinProgressTickets = $allTickets->filter(function ($ticket) {
+                    return $ticket->status === 'In Progress';
+                });
+
+                $alltbcTickets = $allTickets->filter(function ($ticket) {
+                    return $ticket->status === 'To Be Confirmed';
+                });
+
+                $allclosedTickets = $allTickets->filter(function ($ticket) {
+                    return $ticket->status === 'Closed';
+                });
         $Category = Category::all();
         $user = User::all();
         $dataFromDB = Ticket::select('category_id', DB::raw('COUNT(*) as count'))
@@ -77,14 +111,23 @@ class HomeController extends Controller
 
         return view('home', compact('Ticket', 
         'count', 
-        'countOpen', 
-        'countClosed', 
-        'countProgress', 
-        'countTBC', 
-        'opentickets', 
-        'progresstickets',
-        'closedtickets', 
-        'tbctickets',
+        'allcount',
+        'allopenCount',
+        'allinProgressCount',
+        'allclosedCount',
+        'alltbcCount',
+        'openCount',
+        'inProgressCount',
+        'closedCount',
+        'tbcCount',
+        'openTickets',
+        'inProgressTickets',
+        'tbcTickets',
+        'closedTickets',
+        'allopenTickets',
+        'allinProgressTickets',
+        'alltbcTickets',
+        'allclosedTickets',
         'user',
         'Category',
         'dataFromDB'
@@ -111,39 +154,6 @@ class HomeController extends Controller
         $data = Ticket::where('creator_id', $id)->get(); // Replace YourModel with your actual Eloquent model.
 
         return response()->json($data);
-    }
-
-    public function updateTicket(Request $request, $id)
-    {
-        try{
-            $status = $request->input('status');
-            $ticket = Ticket::with(['creator', 'assignedTo', 'category'])
-                            ->where("id", $id)
-                            ->first();
-
-            if (!$ticket) {
-                return response()->json([
-                    'error' => 'Ticket not found', 
-                    'id' => $ticketId,
-                    'status' => $status
-                ]);
-            }
-            // Update the status of the ticket
-            if ($status === "Open"){
-                $ticket->status = $status;
-                $ticket->assigned_to = null;
-            }
-            else {
-                $ticket->status = $status;
-            }
-            $ticket->save();
-
-            return response()->json($ticket);
-        } catch (Exception $e) {
-            // Log the error for debugging
-            Log::error($e);
-            return response()->json(['error' => 'An error occurred while updating the ticket status.']);
-        }
     }
 
     public function fetchTicket($id)

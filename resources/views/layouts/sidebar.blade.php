@@ -61,9 +61,17 @@
           </li>
           <li class="nav-item">
             <a href="{{ url('category') }}" class="nav-link">
-              <i class="nav-icon fas fa-user text-success"></i>
+              <i class="nav-icon fas fa-star text-success"></i>
               <p>
                 category
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url('history') }}" class="nav-link">
+              <i class="nav-icon fas fa-clock text-success"></i>
+              <p>
+                History
               </p>
             </a>
           </li>

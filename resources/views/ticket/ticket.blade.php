@@ -5,177 +5,29 @@
     <div class="container-fluid">
         <ul class="nav nav-tabs" id="myTab" role="tablist">
 		<li class="nav-item" role="presentation">
-			<button class="nav-link" id="open-tab" data-toggle="tab" data-target="#open" type="button" role="tab" aria-controls="open" aria-selected="false">Ticket</button>
+			<button class="nav-link active" id="open-tab" data-toggle="tab" data-target="#open" type="button" role="tab" aria-controls="open" aria-selected="true">Ticket</button>
 		</li>
-		@can('isAdmin')
 		<li class="nav-item" role="presentation">
-			<button class="nav-link active" id="taken-tab" data-toggle="tab" data-target="#taken" type="button" role="tab" aria-controls="taken" aria-selected="true">Taken Ticket</button>
+			<button class="nav-link" id="taken-tab" data-toggle="tab" data-target="#progress" type="button" role="tab" aria-controls="progress" aria-selected="false">In Progress Ticket</button>
 		</li>
-		@endcan
-    </ul>
-    <div class="tab-content" id="myTabContent">
-					<div class="tab-pane fade show active" id="open" role="tabpanel" aria-labelledby="open-tab">
-				  <div class="card">
-					  <div class="card-header">
-						<div class="row">
-						  <div class="col">
-							<h3 class="card-title">List Tiket</h3>
-						  </div>
-						  <div class="col-2">
-							<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addModal">Buat Tiket</button>
-						  </div>
-						</div>
-					  </div>
-					  <!-- /.card-header -->
-					  <div class="card-body">
-						<div class="table-responsive">
-						<table id="tbody2" class="table table-bordered table-hover table-responsive">
-						  <thead>
-							  <tr>
-									<th>No</th>
-									<th>id</th>
-									<th>Title</th>
-									<th>Category</th>
-									<th>Creator</th>
-									<th>Assigned To</th>
-									<th>Status</th>
-									<th>Priority</th>
-									<th>action</th>
-							  </tr>
-						  </thead>
-							<tbody >
-							  @foreach ($opentickets as $data)
-							  <tr>
-								<td>{{$loop->iteration}}</td>
-								<td>{{ $data->id }}</td>
-								<td>{{ strlen($data->title) > 30 ? substr($data->title, 0, 30) . '...' : $data->title }}</td>
-								<td>{{ $data->category->name }}</td>
-								<td>{{ $data->creator->name }}</td>
-								<td id="assignee_{{ $data->id }}">{{ $data->assignedTo ? $data->assignedTo->name : 'Not Assigned' }}</td>
-								<td id="status_{{ $data->id }}">
-									@if($data->status == 'Open')
-										<span class="bg-success border border-success rounded p-2">{{ $data->status }}</span>
-									@elseif($data->status == 'In Progress')
-										<span class="bg-warning border border-warning rounded p-2">{{ $data->status }}</span>
-									@else
-										<span class="bg-secondary border border-white rounded p-2">{{ $data->status }}</span>
-									@endif
-								</td>
-								<td>{{ $data->priority }}</td>
-								<td>
-									<div class="row">
-										<div class="col">
-										  <a href="#" class="btn btn-sm btn-primary btn-block m-2" data-toggle="modal" data-target="#ticketModal1" data-id="{{ $data->id }}">detail</a>
-										</div> 
-										@can('isAdmin')
-										<div class="col-4">
-										  <form action="{{ url('ticket/'.$data->id) }}" method="POST">
-															@csrf
-											  <input type="hidden" name="_method" value="DELETE">
-											  <button class="btn btn-sm btn-danger btn-block m-2" type="submit">Hapus</button>
-										  </form>
-										</div>
-										<div class="col-4">
-										  <a href="#" class="update-status btn btn-sm btn-primary btn-block m-2" data-id="{{ $data->id }}" data-status="In Progress" data-assignee="{{ auth()->user()->id }}">take</a>
-										</div>
-										<div class="col-4">
-										  <a href="{{ route('ticket.edit', ['ticket' => $data->id]) }}" class="btn btn-sm btn-primary btn-block m-2">Edit</a>
-										</div>
-										@endcan
-									</div>
-								</td>
-							  </tr>
-							  @endforeach
-							</tbody>
-						</table>
-						</div>
-					  </div>
-				  <!-- /.card-body -->
-				</div>
-			  </div>
-			  @can('isAdmin')
-			<div class="tab-pane fade" id="taken" role="tabpanel" aria-labelledby="taken-tab">
-				<div class="card">
-				  <div class="card-header">
-					<div class="row">
-					  <div class="col-8">
-						<h3 class="card-title"><b>List Tiket In Progress</b></h3>
-					  </div>
-					  <div class="col-4">
-						<a href="/openAll" class="btn btn-sm btn-primary m-2">Open All</a>
-						<a href="/empty" class="btn btn-sm btn-primary m-2">Empty table</a>
-					  </div>
-					</div>
-				  </div>
-				  <!-- /.card-header -->
-				  <div class="card-body">
-					<div class="table-responsive">
-						<table id="tbody1" class="table table-bordered table-hover table-responsive">
-						  <thead>
-						  <tr>
-								<th>No</th>
-								<th>id</th>
-								<th>Title</th>
-								<th>Category</th>
-								<th>Creator</th>
-								<th>Assigned To</th>
-								<th>Status</th>
-								<th>Priority</th>
-								<th>action</th>
-						  </tr>
-						  </thead>
-						  <tbody>
-						  @foreach ($takentickets as $data)
-						  <tr>
-							<td>{{$loop->iteration}}</td>
-							<td>{{ $data->id }}</td>
-							<td>{{ strlen($data->title) > 30 ? substr($data->title, 0,30) . '...' : $data->title }}</td>
-							<td>{{ $data->category->name }}</td>
-							<td>{{ $data->creator->name }}</td>
-							<td id="assignee_{{ $data->id }}">{{ $data->assignedTo ? $data->assignedTo->name : 'Not Assigned' }}</td>
-							<td id="status_{{ $data->id }}">
-								@if($data->status == 'Open')
-									<span class="bg-success border border-success rounded p-2">{{ $data->status }}</span>
-								@elseif($data->status == 'In Progress')
-									<span class="bg-warning border border-warning rounded p-2">{{ $data->status }}</span>
-								@elseif($data->status == 'To Be Confirmed')
-									<span class="bg-info border border-info rounded p-2">{{ $data->status }}</span>
-								@else
-									<span class="bg-secondary border border-white rounded p-2">{{ $data->status }}</span>
-								@endif
-							</td>
-							<td>{{ $data->priority }}</td>
-							<td>
-							<div class="row"> 
-								<div class="col-4">
-								  <form action="{{ url('ticket/'.$data->id) }}" method="POST">
-													@csrf
-									  <input type="hidden" name="_method" value="DELETE">
-									  <button class="btn btn-sm btn-danger btn-block m-2" type="submit">Hapus</button>
-								  </form>
-								</div>
-								<div class="col-4">
-									<a href="#" class="update-status btn btn-sm btn-info btn-block m-2" data-id="{{ $data->id }}" data-status="To Be Confirmed">Done</a>
-								</div>
-								<div class="col-4">
-								  <button type="button" class="btn btn-sm btn-primary btn-block m-2" data-toggle="modal" data-target="#DetailModal">Detail</button>
-								</div>
-								<div class="col-4">
-								  <a href="/edit/{{$data->id}}" class="btn btn-sm btn-primary btn-block m-2">Edit</a>
-								</div>
-							</div>
-							</td>
-						  </tr>
-						  @endforeach
-						</table>
-						</div>
-					  </div>
-					  <!-- /.card-body -->
-					</div>
-				  </div>
-			  </div>			  
-				@endcan
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="taken-tab" data-toggle="tab" data-target="#tbc" type="button" role="tab" aria-controls="tbc" aria-selected="false">To Be Confirmed Ticket</button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="taken-tab" data-toggle="tab" data-target="#closed" type="button" role="tab" aria-controls="closed" aria-selected="false">Closed Ticket</button>
+		</li>
+    	</ul>
+    	<div class="tab-content" id="myTabContent">
+			<div class="tab-pane fade show active" id="open" role="tabpanel" aria-labelledby="open-tab">
+				@include('table.open_ticket_table')
 			</div>
+			  @can('isAdmin')
+			<div class="tab-pane fade" id="progress" role="tabpanel" aria-labelledby="taken-tab">
+				@include('table.progress_ticket_table')
+			</div>
+		</div>			  
+		@endcan
+	</div>
 </section>
             <!-- /.card -->
 <!-- jQuery (Include jQuery only once) -->
@@ -201,9 +53,15 @@
 
 <!-- AdminLTE App -->
 <script src="{{asset('AdminLTE')}}/dist/js/adminlte.min.js"></script>
+<script src="{{asset('AdminLTE')}}/plugins/PDFObject/pdfobject.js"></script>
+<script src="{{asset('AdminLTE')}}/plugins/PDFObject/pdfobject.min.js"></script>
 
-@include('modal.add_ticket')
-@include('modal.ticket_detail')
+
+@include('modal.upload_1')
+@include('modal.imageview')
+@include('modal.pdfview')
+@include('modal.comment')
+
 <!-- Page specific script -->
 <script>
   $(document).ready(function () {
@@ -214,28 +72,31 @@
         var ticketId = link.data('id')
         var newStatus = link.data('status');
         var newAssignee = link.data('assignee');
-
+		var comment = null;
+		console.log('Clicked link with ticket ID:', newStatus);
         // Disable the link to prevent further updates
         link.prop('disabled', true);
 
         // Send an AJAX request to update the status to 'pending'
         $.ajax({
-            url: '/updateticket/' + ticketId,
+            url: '/update-ticket/' + ticketId,
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Include the CSRF token
             },
             data: { 
               status: newStatus,
-              assignee: newAssignee  
+              assignee: newAssignee,
+			  comment,
             },
             success: function (response) {
+			console.log('Clicked link with ticket ID:', response.detail);
               $('#status_' + ticketId).text(response.updatedStatus);
               $('#assignee_' + ticketId).text(response.updatedAssigned);
               setTimeout(function() {
                   $('#tbody1').load(document.URL + ' #tbody1');
                   $('#tbody2').load(document.URL + ' #tbody2');
-              }, 3000);
+              }, 1000);
             },
             error: function (xhr, status, error) {
                 console.error(error);
@@ -245,68 +106,6 @@
         });
     });
 });
-
-// Attach a click event listener to the <a> element
-$(document).on('click', 'a[data-target="#ticketModal1"]', function(event) {
-        event.preventDefault(); // Prevent the <a> from navigating to a different page
-
-        // Read the data-id attribute
-        var id = $(this).data('id'); // Get the value of the data-id attribute
-        console.log('Clicked link with ticket ID:', id);
-        // Make an AJAX request to fetch data based on the ID
-        $.ajax({
-            url: '/fetch-data-ticket/' + id, // Update the URL to include the ID
-            method: 'GET',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Include the CSRF token
-            },
-            success: function(data) {
-                    // Access individual properties from the response
-                    console.log('Clicked link with ticket ID:', data);
-                    var ticket = data[0]; // Assuming the structure remains consistent
-                    $('#name').text(ticket.creator.name); // Update content using text() instead of html()
-                    $('#title').text(ticket.title);
-                    $('#priority').text(ticket.priority);
-                    $('#status').text(ticket.status);
-                    $('#desc').text(ticket.description);
-                    $('#ticketModal1').modal('show');
-                  },
-            error: function() {
-                alert('Failed to fetch data.');
-            }
-        });
-    });
-  
-    $(document).on('click', 'a[data-target="#editModal1"]', function(event) {
-        event.preventDefault(); // Prevent the <a> from navigating to a different page
-
-        // Read the data-id attribute
-        var id = $(this).data('id'); // Get the value of the data-id attribute
-        console.log('Clicked link with ticket ID:', id);
-        // Make an AJAX request to fetch data based on the ID
-        $.ajax({
-            url: '/fetch-data-ticket/' + id, // Update the URL to include the ID
-            method: 'GET',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Include the CSRF token
-            },
-            success: function(data) {
-                    // Access individual properties from the response
-                    console.log('Clicked link with ticket ID:', data);
-                    var ticket = data[0]; // Assuming the structure remains consistent
-                    $('#name').text(ticket.creator.name); // Update content using text() instead of html()
-                    $('#title').text(ticket.title);
-                    $('#priority').text(ticket.priority);
-                    $('#status').text(ticket.status);
-                    $('#desc').text(ticket.description);
-                    $('#ticketModal1').modal('show');
-                  },
-            error: function() {
-                alert('Failed to fetch data.');
-            }
-        });
-    });
-
 $(document).ready(function () {
     $('#addTicket').click(function (e) {
         e.preventDefault(); // Prevent the default link behavior
@@ -340,5 +139,157 @@ $(document).ready(function() {
             $('#errorMessage').html('<strong>{{ $errors->first() }}</strong>');
         @endif
     });
+
+$(document).on('click', 'a[data-target="#imageview"]', function(event) {
+	event.preventDefault(); // Prevent the default link behavior
+    var ticketId = $(this).data('id'); // Extract ticket ID from data- attribute
+	console.log('cek id: ', ticketId);
+    $.ajax({
+        url: '/tickets/' + ticketId,
+		headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Include the CSRF token
+            },
+        type: 'GET',
+        success: function (response) {
+				console.log('hasil fetch: ', response.image_url);
+
+				var imagesContainer = $('#modalImages');
+				var imagesContainer = $('#pdf-viewer');
+				imagesContainer.empty();
+
+                var imageUrl = response.image_url;
+                var fileType = response.file_type;
+
+                if (fileType === 'pdf') {
+					PDFObject.embed(imageUrl, "#pdf-viewer", {
+					height: 'calc(100vh - 120px)', // Adjust the height of the PDF viewer
+					width: '100%', // Adjust the width as needed
+					pdfOpenParams: {
+						view: 'FitV', // Set PDF view mode (optional)
+						scrollbar: '1', // Show scrollbar (optional)
+					}});
+					$('#pdfview').modal('show');
+                } else if (fileType === 'jpg' || fileType === 'jpeg' || fileType === 'png') {
+					
+                    // Handle image file display (e.g., display in an image tag)
+                    var img = $('<img />').attr('src', imageUrl).attr('alt', 'Ticket Image');
+                    
+					img.css('max-width', '100%');
+					img.css('max-height', '100%');
+
+					imagesContainer.append(img);
+					$('#imageview').modal('show');
+                } else {
+                    // Handle other file types accordingly
+                    // ...
+                }
+        },
+        error: function (error, response) {
+            console.error('Error fetching ticket details:', error);
+			console.log('hasil fetch: ', response);
+        }
+    });
+});
+
+$(document).on('click', 'a[data-target="#commentsmodal"]', function(event) {
+	event.preventDefault(); // Prevent the default link behavior
+    var ticketId = $(this).data('id'); // Extract ticket ID from data- attribute
+	console.log('cek id: ', ticketId);
+    $.ajax({
+        url: '/ticketcomments/' + ticketId,
+        type: 'GET',
+        success: function (response) {
+			console.log('cek id: ', response);
+            var comments_denied = response.comments_denied;
+			var comments_solve = response.comments_solve;
+            var modalBody = $('#commentsmodal .modal-body');
+            modalBody.empty();
+
+			if (comments_solve || comments_denied) {
+                    var maxLength = Math.max(comments_solve.length, comments_denied.length);
+
+                    for (var i = 0; i < maxLength; i++) {
+                        var solveComment = comments_solve[i] || {}; // Use empty object if index is out of bounds
+                        var deniedComment = comments_denied[i] || {}; // Use empty object if index is out of bounds
+
+                        var cardSolve = `
+                            <div class="row">
+                                <div class="col">
+                                    <div class="card mb-3 bg-success">
+										<div class="card-header">
+											<div class="row">
+												<div class="col">
+													<h5 class="card-title">${solveComment.user?.name || ''}</h5>
+												</div>
+												<div class="col">
+													<h5 class="card-title">${solveComment.created_at || ''}</h5>
+												</div>
+											</div>
+										</div>
+                                        <div class="card-body">
+											<div class="row">
+												<p class="card-text">${solveComment.comment_text || ''}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                        var cardDenied = `
+                            <div class="row">
+                                <div class="col">
+                                    <div class="card mb-3 bg-danger">
+										<div class="card-header">
+												<div class="row">
+													<div class="col">
+														<h5 class="card-title">${solveComment.user?.name || ''}</h5>
+													</div>
+													<div class="col">
+														<h5 class="card-title">${solveComment.created_at || ''}</h5>
+													</div>
+												</div>
+											</div>
+                                        <div class="card-body">
+                                            <p class="card-text">${deniedComment.comment_text || ''}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                        modalBody.append(cardSolve);
+                        modalBody.append(cardDenied);
+                    }
+                } else {
+                    modalBody.append('<p>No comments available.</p>');
+                }
+
+
+			$('#commentsmodal').modal('show');
+			},
+        error: function (error, response) {
+            console.error('Error fetching ticket details:', error);
+			console.log('cek response: ', response);
+        }
+    });
+});
+
+$(document).on('click', 'a[data-target="#solveimagemodal"]', function(event) {
+        event.preventDefault(); // Prevent the <a> from navigating to a different page
+
+        // Read the data-id attribute
+        var id = $(this).data('id'); // Get the value of the data-id attribute
+        $('#id_upload').val(id); 
+        $('#solveimagemodal').modal('show');
+        $('#displaymodalprogressadmin').modal('hide');
+        console.log('Id:', id);
+    });
+
+	const fileInput = document.getElementById("image2");
+
+	window.addEventListener('paste', e => {
+		console.log('Paste event detected1.');
+		fileInput.files = e.clipboardData.files;
+	});
 </script>
 @endsection

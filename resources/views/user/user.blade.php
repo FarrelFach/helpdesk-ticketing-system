@@ -9,7 +9,7 @@
               <div class="card-header">
                 <div class="row">
                   <div class="col">
-                    <h3 class="card-title">List Tiket</h3>
+                    <h3 class="card-title"></h3>
                   </div>
                   <div class="col-2">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Buat User</button>
@@ -28,7 +28,6 @@
                     <th>role</th>
                     <th>department</th>
                     <th>NIK</th>
-                    <th>action</th>
                   </tr>
                   </thead>
                   <tbody>
@@ -40,20 +39,6 @@
                     <td>{{ $data->role }}</td>
                     <td>{{ $data->department }}</td>
                     <td>{{ $data->nik }}</td>
-                    <td>
-                    <div class="row"> 
-                        <div class="col-4">
-                          <form action="{{ url('user/'.$data->id) }}" method="POST">
-								            @csrf
-                              <input type="hidden" name="_method" value="DELETE">
-                              <button class="btn btn-sm btn-danger btn-block" type="submit">Hapus</button>
-                          </form>
-                        </div>
-                        <div class="col-4">
-                          <a href="{{ url('user/'.$data->id.'/edit') }}" class="btn btn-sm btn-primary btn-block">Edit</a>
-                        </div>
-                    </div>
-                    </td>
                   </tr>
                   @endforeach
                 </table>
@@ -65,6 +50,7 @@
         </div>
       </div>
 </section>
+@include('modal.add_user')
             <!-- /.card -->
 <!-- jQuery (Include jQuery only once) -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -92,50 +78,6 @@
 
 <!-- Page specific script -->
 <script>
-  $(document).ready(function () {
-    $('.update-status').click(function (e) {
-        e.preventDefault(); // Prevent the default link behavior
-
-        var link = $(this);
-        var row = link.closest('tr');
-        var userId = link.data('id')
-        var statusCell = row.find('.status');
-        var newStatus = link.data('status');
-
-        console.log('Clicked link with user ID:', userId);
-        console.log('New status:', newStatus);
-
-        // Disable the link to prevent further updates
-        link.prop('disabled', true);
-
-        // Send an AJAX request to update the status to 'pending'
-        $.ajax({
-            url: '/update-user-status/' + userId,
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Include the CSRF token
-            },
-            data: { status: newStatus },
-            success: function (response) {
-                // Handle the response from the server
-                if (response.success) {
-                    // Update the status column with the new status
-                    statusCell.html('<span class="bg-warning border border-warning rounded">' + newStatus + '</span>');
-                } else {
-                    alert('Failed to update status.');
-                    // Re-enable the link if there was an error
-                    link.prop('disabled', false);
-                }
-            },
-            error: function (xhr, status, error) {
-                console.error(error);
-                // Re-enable the link in case of an error
-                link.prop('disabled', false);
-            }
-        });
-    });
-});
-
     $(document).ready(function() {
         @if ($errors->any())
             $('#myModal').modal('show');
@@ -143,23 +85,7 @@
         @endif
     });
 </script>
-<div class="modal fade bd-example-modal-lg" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-      @include('modal.add_user'); 
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div>
-    </div>
-  </div>
-</div>
+
+      
+      
 @endsection

@@ -5,6 +5,7 @@ use App\Http\Controllers\TicketController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\testController;
 /*
 |--------------------------------------------------------------------------
@@ -24,7 +25,6 @@ Route::resource('home', HomeController::class);
 Route::get('home/{status}/show', [HomeController::class, 'show'])->name('tickets.show');
 Route::get('/fetch-data/{id}', [HomeController::class, 'fetchData']);
 Route::get('/fetch-dataAll/{id}', [HomeController::class, 'fetchDataAll']);
-Route::post('/update-ticket/{id}', [HomeController::class, 'updateTicket'])->name('home.update');
 Route::get('/fetch-data-ticket-home/{id}', [HomeController::class, 'fetchTicket'])->name('users.show');
 Route::post('/add-ticket-home', [TicketController::class, 'store'])->name('home.store');
 Route::redirect('/', '/home');
@@ -35,8 +35,12 @@ Route::get('/fetch-data-ticket/{id}', [TicketController::class, 'fetchTicket']);
 Route::get('/edit/{ticket}', [TicketController::class, 'edit'])->name('ticket.edit');
 Route::get('/openAll', [TicketController::class, 'openAll'])->name('ticket.openAll');
 Route::get('/empty', [TicketController::class, 'empty'])->name('ticket.empty');
-Route::post('/updateticket/{ticket}', [TicketController::class, 'updateTicket'])->name('ticket.update');
+Route::post('/update-ticket/{id}', [TicketController::class, 'updateTicket'])->name('ticket.update');
+Route::post('/solve/{id}', [TicketController::class, 'solve'])->name('ticket.solve');
 Route::post('/add-ticket', [TicketController::class, 'store'])->name('ticket.store');
+Route::get('/tickets/{ticket_id}', [TicketController::class, 'getTicketDetails'])->name('tickets.details');
+Route::get('/ticketssolves/{ticket_id}', [TicketController::class, 'getTicketSolves'])->name('tickets.solves');
+Route::get('/ticketcomments/{ticket_id}', [TicketController::class, 'getComments'])->name('tickets.comments');
 
 //categorycontroller
 Route::resource('category', CategoryController::class);
@@ -44,6 +48,7 @@ Route::post('/insert-data', [CategoryController::class, 'store'])->name('insert.
 
 //misc
 Route::resource('user', UserController::class);
+Route::resource('history', HistoryController::class);
 Route::get('/edituser/{id}', [UserController::class, 'edit'])->name('user.edit');
 Route::post('/updateuser/{id}', [UserController::class, 'update'])->name('user.update');
 Route::resource('test', testController::class);

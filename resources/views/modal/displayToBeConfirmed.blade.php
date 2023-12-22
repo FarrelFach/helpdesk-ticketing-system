@@ -1,18 +1,19 @@
-<div class="modal fade bd-example-modal-lg" id="dataModal4" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel" aria-hidden="true">
+<div class="modal fade bd-example-modal-lg" id="displaymodaltbc" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Data from Database</h5>
+                <h5 class="modal-title">To Be Confirmed Ticket</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <table id="tbody1" class="table table-bordered table-hover table-responsive">
+                <table id="displaytbc" class="table table-bordered table-hover table-responsive" style="width:100%">
                   <thead>
                   <tr>
                     <th>No</th>
-                    <th>title</th>
+                    <th style="width:30%">title</th>
+                    <th style="width:25%">description</th>
                     <th>category</th>
                     <th>assigned_to</th>
                     <th>Status</th>
@@ -20,11 +21,36 @@
                     <th>action</th>
                   </tr>
                   </thead>
-                  <tbody id="data-table" style="font-size: 16px">
-                  @foreach ($tbctickets as $data)
+                  <tbody style="font-size: 16px">
+                  @foreach ($tbcTickets as $data)
                   <tr>
                     <td>{{$loop->iteration}}</td>
-                    <td>{{ strlen($data->title) > 35 ? substr($data->title, 0, 35) . '...' : $data->title }}</td>
+                    <td>{{ $data->title }}
+                    @if ($data->comments->count() > 0)
+                      <a href="#" data-target="#commentsmodal" data-id="{{ $data->id }}">
+                        <i class="far fa-comment"></i>
+                      </a>
+                    @endif
+                    @if ($data->attachment)
+                        @foreach ($data->attachment as $attachment)
+                            @if ($attachment->detail === 'first')
+                                <a href="#" data-target="#imageview" data-id="{{ $data->id }}">
+                                    <img src="{{ asset('images/' . $attachment->image_url) }}" alt="Image" width="200">
+                                </a>
+                            @endif
+                        @endforeach
+                    @endif
+                    @if ($data->attachments)
+                        @foreach ($data->attachments as $attachment)
+                            @if ($attachment->detail === 'second')
+                                <a href="#" data-target="#imageview" data-id="{{ $data->id }}">
+                                    <img src="{{ asset('images/' . $attachment->image_url) }}" alt="Image" width="200">
+                                </a>
+                            @endif
+                        @endforeach
+                    @endif
+                    </td>
+                    <td>{{ $data->description }}</td>
                     <td>{{ $data->category->name }}</td>
                     <td id="assignee_{{ $data->id }}">{{ $data->assignedTo ? $data->assignedTo->name : 'Not Assigned' }}</td>
                     <td id="status_{{ $data->id }}">
@@ -33,12 +59,11 @@
                     <td>{{ $data->priority }}</td>
                     <td>
                     <div class="row">
+                      @can('isUser')
                         <div class="col">
                           <a href="#" class="btn btn-sm btn-primary btn-block" data-dismiss="modal" data-target="#Confirmation" data-id="{{$data->id}}">accept</a>
                         </div>
-                        <div class="col">
-                          <a class="btn btn-sm btn-primary btn-block">Detail</a>
-                        </div>
+                      @endcan
                     </div>
                     </td>
                   </tr>
@@ -49,30 +74,7 @@
         </div>
     </div>
 </div>
-<div class="modal fade bd-example-modal-lg" id="Confirmation" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Data from Database</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-              <form id="myForm" method="POST">
-                  {{ csrf_field() }}
-                  <input type=text id="id" name="id">
-                  <h5>Terima Penyelesaian?</h5>
-                <div >
-                <button type=submit id="submitFormNo" data-status="Open">Denied</button>
-                <button type=submit id="submitFormYes" data-status="Closed">Accept</button>
-                </div>
-              </form>
-              </div>
-            </div>
-        </div>
-    </div>
-</div>
+@include('modal.confirmation')
 <!-- jQuery (Include jQuery only once) -->
 <script>
   $(document).on('click', 'a[data-target="#Confirmation"]', function(event) {
@@ -81,82 +83,18 @@
         // Read the data-id attribute
         var id = $(this).data('id'); // Get the value of the data-id attribute
         $('#id').val(id); 
-        $('#Confirmation').modal('show');
         console.log('The fuck:', id);
-    });
-    
+        $('#Confirmation').modal('show');
+        var ticketId = $(this).data('id');
+
     $(document).ready(function () {
-      $('#dataModal4').on('show.bs.modal', function() {
-        $('#tbody1').load(document.URL + ' #tbody1');
-    });
-  });
-
-  $(document).ready(function () {
-    $('#submitFormNo').click(function (e) {
-        e.preventDefault(); // Prevent the default link behavior
-
-        var formData = $('#myForm').serialize();
-        var newStatus = $(this).data('status');
-        id = $("#id").val();
-
-        console.log('Clicked link with ticket ID:', formData);
-        console.log('New status:', newStatus);
-        console.log('id:', id);
-
-        // Send an AJAX request to update the status to 'pending'
-        $.ajax({
-            url: '/update-ticket/' + id,
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Include the CSRF token
-            },
-            data: { formData, status: newStatus,},
-            success: function (response) {
-              console.log('response:', response);
-              console.log('status: ', response.status);
-              console.log('id: ', response.id);
-              $('#Confirmation').modal('hide');
-              $('#dataModal4').modal('show');
-              $('#count3').load(document.URL + ' #count3');
-              $('#count4').load(document.URL + ' #count4');
-            },
-            error: function (xhr, status, error, response) {
-                console.error(error);
-                console.log('gagal goblok ', response);
-            }
-        });
-    });
-
-    $('#submitFormYes').click(function (e) {
-        e.preventDefault(); // Prevent the default link behavior
-
-        var formData = $('#myForm').serialize();
-        var newStatus = $(this).data('status');
-        id = $("#id").val();
-
-        console.log('Clicked link with ticket ID:', formData);
-        console.log('New status:', newStatus);
-        console.log('id:', id);
-
-        // Send an AJAX request to update the status to 'pending'
-        $.ajax({
-            url: '/update-ticket/' + id,
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Include the CSRF token
-            },
-            data: { status: newStatus, formData },
-            success: function (response) {
-              console.log('The response:', response);
-              $('#Confirmation').modal('hide');
-              $('#dataModal4').modal('show');
-              $('#tbcount').load(document.URL + ' #tbcount');
-            },
-            error: function (xhr, status, error) {
-                console.error(error);
-                console.log('gagal goblok');
-            }
-        });
+      $('#displaymodaltbc').on('show.bs.modal', function() {
+        $('#displaytbc').load(document.URL + ' #displaytbc');
+        $('#count1').load(document.URL + ' #count1');
+        $('#count2').load(document.URL + ' #count2');
+        $('#count3').load(document.URL + ' #count3');
+        $('#count4').load(document.URL + ' #count4');
+      });
     });
 });
 </script>

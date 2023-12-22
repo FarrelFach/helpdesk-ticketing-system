@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="{{asset('AdminLTE')}}/dist/css/adminlte.min.css">
   <!-- Custom style -->
   <link rel="stylesheet" href="{{asset('AdminLTE')}}/dist/css/custom.css">
+
   <!-- Chart -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -22,11 +23,11 @@
 <!-- Site wrapper -->
 <div class="wrapper">
   <!-- Navbar -->
-  @include('layouts.navbar');
+  @include('layouts.navbar')
   <!-- /.navbar -->
 
   <!-- Main Sidebar Container -->
-    @include('layouts.sidebar');
+    @include('layouts.sidebar')
     <!-- /.sidebar -->
 
   <!-- Content Wrapper. Contains page content -->
@@ -81,6 +82,10 @@
 <script src="{{asset('AdminLTE')}}/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- AdminLTE App -->
 <script src="{{asset('AdminLTE')}}/dist/js/adminlte.min.js"></script>
+
+<script src="{{asset('AdminLTE')}}/plugins/PDFObject/pdfobject.js"></script>
+<script src="{{asset('AdminLTE')}}/plugins/PDFObject/pdfobject.min.js"></script>
+
 
 </body>
 </html>

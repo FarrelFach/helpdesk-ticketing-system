@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
+use App\Models\Ticket;
+use App\Observers\HistoryObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,5 +29,6 @@ class AppServiceProvider extends ServiceProvider
         Blade::directive('image', function ($expression) {
             return "<?php echo asset('image' . $expression); ?>";
         });
+        Ticket::observe(HistoryObserver::class);
     }
 }

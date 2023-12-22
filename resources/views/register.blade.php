@@ -2,7 +2,7 @@
 <body class="hold-transition register-page">
 <div class="register-box">
   <div class="register-logo">
-    <a href="/home"><b>Add </b>Admin</a>
+    <a href="/home"><b>Add </b>New User</a>
   </div>
 
   <div class="card">
@@ -119,7 +119,7 @@
             <p>- OR -</p>
         </div>
             <div class="col">
-              <a class="btn btn-primary btn-block" href="{{ route('login') }}">Kagak jadi</a>
+              <a class="btn btn-primary btn-block" href="{{ route('login') }}">Back To Login</a>
             </div>
     </div>
     <!-- /.form-box -->

@@ -1,5 +1,5 @@
 @extends('layouts.template')
-@section('title', 'List user')
+@section('title', 'History')
 @section('content')
 <section class="content">
 <div class="container-fluid">
@@ -9,7 +9,7 @@
               <div class="card-header">
                 <div class="row">
                   <div class="col">
-                    <h3 class="card-title">List Tiket</h3>
+                    <h3 class="card-title">History</h3>
                   </div>
                   <div class="col-2">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Buat User</button>
@@ -23,37 +23,24 @@
                   <thead>
                   <tr>
                     <th>id</th>
-                    <th>name</th>
-                    <th>username</th>
-                    <th>role</th>
-                    <th>department</th>
-                    <th>NIK</th>
-                    <th>action</th>
+                    <th>Action</th>
+                    <th>Ticket_Id</th>
+                    <th>Field</th>
+                    <th>Old_Value</th>
+                    <th>New_Value</th>
+                    <th>Created_at</th>
                   </tr>
                   </thead>
                   <tbody>
-                  @foreach ($user as $data)
+                  @foreach ($history as $data)
                   <tr>
                     <td>{{ $data->id }}</td>
-                    <td>{{ $data->name }}</td>
-                    <td>{{ $data->username }}</td>
-                    <td>{{ $data->role }}</td>
-                    <td>{{ $data->department }}</td>
-                    <td>{{ $data->nik }}</td>
-                    <td>
-                    <div class="row"> 
-                        <div class="col-4">
-                          <form action="{{ url('user/'.$data->id) }}" method="POST">
-								            @csrf
-                              <input type="hidden" name="_method" value="DELETE">
-                              <button class="btn btn-sm btn-danger btn-block" type="submit">Hapus</button>
-                          </form>
-                        </div>
-                        <div class="col-4">
-                          <a class="btn btn-sm btn-primary btn-block">Edit</a>
-                        </div>
-                    </div>
-                    </td>
+                    <td>{{ $data->action }}</td>
+                    <td>{{ $data->ticket_id }}</td>
+                    <td>{{ $data->field }}</td>
+                    <td>{{ $data->old_value }}</td>
+                    <td>{{ $data->new_value }}</td>
+                    <td>{{ $data->created_at }}</td>
                   </tr>
                   @endforeach
                 </table>
